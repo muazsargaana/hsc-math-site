@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../glyph-fixes.css">
   <link rel="stylesheet" href="../performance.css">
   <link rel="stylesheet" href="../product-polish.css">
+  <link rel="stylesheet" href="../account-ui.css">
   <link rel="stylesheet" href="../math.css">
 </head>
 <body>
@@ -22,8 +23,8 @@
   <main class="content-shell">
     <nav class="top-dock" aria-label="Main navigation">
       <a class="brand" href="/" aria-label="HSC Maths Hub home"><span class="brand-mark"><img src="/favicon.svg" alt="" width="18" height="18"></span><span>HSC Maths</span></a>
-      <div class="dock-links"><a href="/">Resources</a><a class="active" href="/mastery/">Mastery</a><a href="/performance/">Performance</a><a href="/profile/">Account</a></div>
-      <button id="theme-toggle" class="theme-toggle" type="button"><span class="theme-icon" aria-hidden="true"></span><span class="theme-label">Light</span></button>
+      <div class="dock-links"><a href="/">Resources</a><a class="active" href="/mastery/">Mastery</a><a href="/performance/">Performance</a></div>
+      <div style="display:flex;align-items:center;gap:8px"><a id="nav-account-link" class="nav-account-link" href="/profile/"><span id="nav-account-text">Account</span></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme"><span class="theme-icon" aria-hidden="true"></span><span class="theme-label">Light</span></button></div>
     </nav>
 
     <header class="mastery-hero">
@@ -62,6 +63,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../auth-client.js"></script><script src="../cloud-sync.js"></script>
   <script src="../mastery-data-1.js"></script><script src="../mastery-data-2.js"></script><script src="../mastery-data-3.js"></script><script src="../mastery-data-4.js"></script><script src="../text-sanitize.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script src="../math-render.js"></script><script src="../mastery.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script src="../math-render.js"></script><script src="../mastery.js"></script><script src="../home-auth.js"></script><script src="../cloud-hydrate.js"></script>
 </body>
 </html>
