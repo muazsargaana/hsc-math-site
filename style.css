@@ -2,59 +2,125 @@
   box-sizing: border-box;
 }
 
+:root {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
+  min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   background: #0d1117;
   color: #e6edf3;
 }
 
 .container {
-  width: min(950px, 92%);
-  margin: 50px auto;
+  width: min(980px, 92%);
+  margin: 44px auto 80px;
 }
 
 h1 {
+  margin: 0 0 22px;
   font-size: 30px;
-  margin: 0 0 25px;
+  letter-spacing: -0.02em;
 }
 
 #search {
   width: 100%;
   padding: 14px 16px;
-  margin-bottom: 24px;
-
-  font-size: 16px;
+  margin-bottom: 30px;
+  font: inherit;
+  font-size: 15px;
   color: #e6edf3;
-
   background: #161b22;
   border: 1px solid #30363d;
-  border-radius: 8px;
+  border-radius: 9px;
   outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 #search:focus {
   border-color: #58a6ff;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
 }
 
 .folder {
   margin: 3px 0;
 }
 
+.course-folder {
+  margin: 0 0 22px;
+  padding: 8px 10px 13px;
+  background: #11161d;
+  border: 1px solid #21262d;
+  border-radius: 11px;
+}
+
+.main-category {
+  margin: 13px 0;
+}
+
 .folder-title {
-  padding: 9px 10px;
-  border-radius: 6px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #e6edf3;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
   cursor: pointer;
   user-select: none;
 }
 
-.folder-title:hover,
-.file-link:hover {
+.folder-title:hover {
   background: #161b22;
 }
 
+.course-folder > .folder-title {
+  padding: 11px 10px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.main-category > .folder-title {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-size: 15px;
+  font-weight: 650;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.folder-arrow {
+  flex: 0 0 14px;
+  display: inline-block;
+  color: #8b949e;
+  font-size: 19px;
+  line-height: 1;
+  transition: transform 110ms ease;
+}
+
+.folder-arrow.open {
+  transform: rotate(90deg);
+}
+
 .children {
-  margin-left: 22px;
+  margin-left: 24px;
+  padding-left: 10px;
+  border-left: 1px solid #21262d;
+}
+
+.course-folder > .children {
+  margin-top: 5px;
+}
+
+.main-category > .children {
+  margin-top: 5px;
+  margin-bottom: 10px;
 }
 
 .hidden {
@@ -63,13 +129,33 @@ h1 {
 
 .file-link {
   display: block;
-  padding: 8px 10px;
-
-  color: #c9d1d9;
-  text-decoration: none;
+  padding: 6px 10px;
+  margin: 1px 0;
   border-radius: 6px;
+  color: #c9d1d9;
+  font-size: 13.5px;
+  line-height: 1.45;
+  text-decoration: none;
 }
 
 .file-link:hover {
   color: #58a6ff;
+  background: #161b22;
+}
+
+@media (max-width: 640px) {
+  .container {
+    width: 94%;
+    margin-top: 24px;
+  }
+
+  .course-folder {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .children {
+    margin-left: 14px;
+    padding-left: 7px;
+  }
 }
