@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060914">
+  <title>Sign in - HSC Maths Hub</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../performance.css">
+  <link rel="stylesheet" href="../auth.css">
+</head>
+<body>
+  <div class="aurora aurora-a" aria-hidden="true"></div><div class="aurora aurora-b" aria-hidden="true"></div><div class="grid-field" aria-hidden="true"></div>
+  <main class="auth-shell">
+    <section class="auth-card">
+      <a class="auth-brand" href="/"><img src="../favicon.svg" alt=""><span>HSC Maths</span></a>
+      <div class="auth-head"><h1 id="auth-title">Sign in</h1><p id="auth-subtitle">Use your account to keep your school, mastery and assessment data synced.</p></div>
+      <div id="auth-tabs" class="auth-tabs"><button type="button" data-mode="signin" class="active">Sign in</button><button type="button" data-mode="signup">Create account</button></div>
+      <form id="auth-form" class="auth-form" novalidate>
+        <label id="name-field" class="auth-field" hidden><span>Name</span><input id="auth-name" type="text" autocomplete="name" maxlength="80" placeholder="Your name"></label>
+        <label class="auth-field"><span>Email</span><input id="auth-email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+        <label class="auth-field"><span>Password</span><div class="password-wrap"><input id="auth-password" type="password" autocomplete="current-password" required minlength="8" placeholder="At least 8 characters"><button class="password-toggle" type="button" data-toggle="auth-password">Show</button></div></label>
+        <label id="confirm-field" class="auth-field" hidden><span>Confirm password</span><div class="password-wrap"><input id="auth-confirm" type="password" autocomplete="new-password" minlength="8" placeholder="Repeat password"><button class="password-toggle" type="button" data-toggle="auth-confirm">Show</button></div></label>
+        <div class="auth-row"><button id="forgot-password" class="auth-link" type="button">Forgot password?</button></div>
+        <button id="auth-submit" class="auth-submit" type="submit">Sign in</button>
+      </form>
+      <div id="auth-message" class="auth-message" role="status" aria-live="polite"></div>
+      <div class="auth-foot">Passwords are handled by the account provider, not stored in this website's code or localStorage.</div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../auth-client.js"></script>
+  <script src="../cloud-sync.js"></script>
+  <script src="../login.js"></script>
+</body>
+</html>
