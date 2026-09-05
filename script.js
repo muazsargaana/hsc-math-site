@@ -9,45 +9,59 @@ const clearViewButton = document.getElementById("clear-view");
 const themeToggle = document.getElementById("theme-toggle");
 const themeLabel = themeToggle.querySelector(".theme-label");
 
+const COURSE_ORDER = [
+  "Mathematics Extension 1 · Preliminary",
+  "Mathematics Extension 1",
+  "Mathematics Extension 2",
+  "Shared Resources"
+];
+
 const MAIN_CATEGORY_ORDER = [
+  "Preliminary Papers",
   "Organisation Trial Papers",
   "Internal Assessments",
   "Q's By Topic",
   "Notes",
-  "Textbooks"
+  "Textbooks",
+  "Textbook Libraries"
 ];
 
 const TRIAL_ORDER = {
   "Mathematics Extension 1": [
     "CSSA", "Independent", "NEAP", "PEM", "S&G", "QATs",
-    "Western Mathematics Exams", "ACE", "Total Education", "Trial Maths",
-    "Shared Drive Collection"
+    "Western Mathematics Exams", "ACE", "Total Education", "Trial Maths"
   ],
   "Mathematics Extension 2": [
     "CSSA", "Independent", "NEAP", "PEM", "ACE", "S&G",
-    "MathsBank", "ConquerHSC", "Shared Drive Collection"
+    "MathsBank", "ConquerHSC"
   ]
 };
 
 const COURSE_OPTIONS = [
   { value: "", label: "All" },
-  { value: "Mathematics Extension 1", label: "3U" },
-  { value: "Mathematics Extension 2", label: "4U" }
+  { value: "Mathematics Extension 1 · Preliminary", label: "Ext 1 Prelim" },
+  { value: "Mathematics Extension 1", label: "Ext 1 HSC" },
+  { value: "Mathematics Extension 2", label: "Ext 2 HSC" },
+  { value: "Shared Resources", label: "Shared" }
 ];
 
 const TYPE_OPTIONS = [
   { value: "", label: "Everything" },
-  { value: "Organisation Trial Papers", label: "Trial papers" },
+  { value: "Preliminary Papers", label: "Prelim papers" },
+  { value: "Organisation Trial Papers", label: "HSC trials" },
   { value: "Internal Assessments", label: "Internals" },
   { value: "Q's By Topic", label: "By topic" },
   { value: "Notes", label: "Notes" },
-  { value: "Textbooks", label: "Textbooks" }
+  { value: "Textbooks", label: "Textbooks" },
+  { value: "Textbook Libraries", label: "Libraries" }
 ];
 
 const SOURCE_FILTER_TYPES = new Set([
+  "Preliminary Papers",
   "Organisation Trial Papers",
   "Q's By Topic",
-  "Textbooks"
+  "Textbooks",
+  "Textbook Libraries"
 ]);
 
 const viewState = {
@@ -64,8 +78,16 @@ function mergeExternalResources() {
   if (typeof externalResources === "undefined" || !Array.isArray(externalResources)) return;
 
   externalResources.forEach(externalCourse => {
-    const course = resources.find(item => item.name === externalCourse.course);
-    if (!course) return;
+    let course = resources.find(item => item.name === externalCourse.course);
+
+    if (!course) {
+      course = {
+        type: "folder",
+        name: externalCourse.course,
+        children: []
+      };
+      resources.push(course);
+    }
 
     (externalCourse.categories || []).forEach(externalCategory => {
       let category = (course.children || []).find(item => item.name === externalCategory.name);
@@ -111,6 +133,13 @@ function naturalCompare(a, b) {
 }
 
 function orderResources() {
+  const courseRank = new Map(COURSE_ORDER.map((name, index) => [name, index]));
+  resources.sort((a, b) => {
+    const aRank = courseRank.has(a.name) ? courseRank.get(a.name) : 999;
+    const bRank = courseRank.has(b.name) ? courseRank.get(b.name) : 999;
+    return aRank - bRank || naturalCompare(a.name, b.name);
+  });
+
   resources.forEach(course => {
     const categoryRank = new Map(
       MAIN_CATEGORY_ORDER.map((name, index) => [name, index])
@@ -122,19 +151,20 @@ function orderResources() {
       return aRank - bRank || naturalCompare(a.name, b.name);
     });
 
-    const trials = course.children.find(
-      child => child.name === "Organisation Trial Papers"
-    );
-
+    const trials = course.children.find(child => child.name === "Organisation Trial Papers");
     if (trials) {
       const preferred = TRIAL_ORDER[course.name] || [];
       const rank = new Map(preferred.map((name, index) => [name, index]));
-
       trials.children.sort((a, b) => {
         const aRank = rank.has(a.name) ? rank.get(a.name) : 999;
         const bRank = rank.has(b.name) ? rank.get(b.name) : 999;
         return aRank - bRank || naturalCompare(a.name, b.name);
       });
+    }
+
+    const prelim = course.children.find(child => child.name === "Preliminary Papers");
+    if (prelim) {
+      prelim.children.sort((a, b) => naturalCompare(a.name, b.name));
     }
 
     const textbooks = course.children.find(child => child.name === "Textbooks");
@@ -144,8 +174,7 @@ function orderResources() {
         "Fitzpatrick",
         "Maths in Focus",
         "New Advanced Mathematics",
-        "Steven Howard",
-        "External Libraries"
+        "Steven Howard"
       ];
       const rank = new Map(order.map((name, index) => [name, index]));
       textbooks.children.sort((a, b) => {
@@ -167,7 +196,6 @@ function renderSegmented(container, options, selectedValue, onSelect) {
     button.textContent = option.label;
     button.classList.toggle("active", option.value === selectedValue);
     button.setAttribute("aria-pressed", option.value === selectedValue ? "true" : "false");
-
     button.addEventListener("click", () => onSelect(option.value));
     container.appendChild(button);
   });
@@ -209,6 +237,14 @@ function sourceOptionsForCurrentView() {
   return unique.sort(naturalCompare);
 }
 
+function sourceLabelForType() {
+  if (viewState.type === "Organisation Trial Papers") return "All providers";
+  if (viewState.type === "Preliminary Papers") return "All years";
+  if (viewState.type === "Textbooks") return "All publishers";
+  if (viewState.type === "Textbook Libraries") return "All libraries";
+  return "All collections";
+}
+
 function renderControls() {
   renderSegmented(courseFilter, COURSE_OPTIONS, viewState.course, value => {
     viewState.course = value;
@@ -233,11 +269,7 @@ function renderControls() {
 
     const allOption = document.createElement("option");
     allOption.value = "";
-    allOption.textContent = viewState.type === "Organisation Trial Papers"
-      ? "All providers"
-      : viewState.type === "Textbooks"
-        ? "All publishers"
-        : "All collections";
+    allOption.textContent = sourceLabelForType();
     sourceFilter.appendChild(allOption);
 
     sources.forEach(name => {
