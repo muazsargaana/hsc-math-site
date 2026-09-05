@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060914">
+  <title>Profile - HSC Maths Hub</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../mastery.css">
+  <link rel="stylesheet" href="../performance.css">
+  <link rel="stylesheet" href="../product-polish.css">
+</head>
+<body>
+  <div class="aurora aurora-a" aria-hidden="true"></div><div class="aurora aurora-b" aria-hidden="true"></div><div class="grid-field" aria-hidden="true"></div>
+  <main class="content-shell">
+    <nav class="top-dock" aria-label="Main navigation">
+      <a class="brand" href="/"><img class="brand-logo" src="../favicon.svg" alt=""><span>HSC Maths</span></a>
+      <div class="dock-links"><a href="/">Resources</a><a href="/mastery/">Mastery</a><a href="/performance/">Performance</a><a class="active" href="/profile/">Profile</a></div>
+      <button id="theme-toggle" class="theme-toggle" type="button"><span class="theme-icon"></span><span class="theme-label">Light</span></button>
+    </nav>
+
+    <header class="plain-hero">
+      <span class="section-kicker">PROFILE</span>
+      <h1>Your setup.</h1>
+      <p>Set your school and the maths courses you actually use. The rest of the site can reuse this automatically.</p>
+    </header>
+
+    <section class="profile-grid">
+      <section class="performance-card profile-card">
+        <div class="card-heading"><div><span class="mini-kicker">SCHOOL</span><h3>School</h3></div><span id="save-state" class="save-state">Saved locally</span></div>
+        <label class="profile-field"><span>School name</span><small>Start typing. You do not need the exact HSCninja spelling.</small><div class="profile-school-wrap"><input id="profile-school" type="text" placeholder="Start typing your school..." autocomplete="off"></div></label>
+        <div class="profile-meta" id="school-meta">No school selected yet.</div>
+      </section>
+
+      <section class="performance-card profile-card">
+        <div class="card-heading"><div><span class="mini-kicker">COURSES</span><h3>Maths subjects</h3></div></div>
+        <div class="subject-choice-grid">
+          <label class="subject-choice"><input id="subject-ext1" type="checkbox"><span><strong>Mathematics Extension 1</strong><small>Year 11 Preliminary + Year 12 HSC</small></span></label>
+          <label class="subject-choice"><input id="subject-ext2" type="checkbox"><span><strong>Mathematics Extension 2</strong><small>Year 12 HSC</small></span></label>
+        </div>
+      </section>
+
+      <section class="performance-card profile-card account-card">
+        <div class="card-heading"><div><span class="mini-kicker">SYNC</span><h3>Account and cloud saving</h3></div><span class="status-chip local">LOCAL</span></div>
+        <p>Your profile, mastery and assessment data currently save on this device. A real login requires a cloud auth/database connection; the site is now structured so the same data can be moved into an account without changing the UI.</p>
+        <div class="account-feature-row"><span>Current</span><strong>Device-local profile + progress</strong></div>
+        <div class="account-feature-row"><span>Next</span><strong>Email/Google login + cross-device sync</strong></div>
+        <div class="account-note">Cloud login is not being faked. It needs a real backend with per-user security rules before it is safe to enable.</div>
+      </section>
+    </section>
+  </main>
+  <script src="../school-autocomplete.js"></script>
+  <script src="../profile.js"></script>
+</body>
+</html>
