@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Math Resources</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="mastery.css">
 </head>
 
 <body>
@@ -14,6 +15,10 @@
     <header class="page-header">
       <div class="header-row">
         <div>
+          <nav class="site-nav" aria-label="Main navigation">
+            <a class="active" href="/">Resources</a>
+            <a href="/mastery/">Mastery</a>
+          </nav>
           <h1>Math Resources</h1>
           <p class="subtitle">NSW HSC Mathematics · Extension 1 &amp; Extension 2</p>
         </div>
@@ -47,12 +52,7 @@
     <div class="toolbar">
       <div class="search-wrap">
         <span class="search-mark">⌕</span>
-        <input
-          id="search"
-          type="search"
-          placeholder="Search papers, schools, topics"
-          autocomplete="off"
-        >
+        <input id="search" type="search" placeholder="Search papers, schools, topics" autocomplete="off">
       </div>
       <span id="result-count" class="result-count"></span>
     </div>
