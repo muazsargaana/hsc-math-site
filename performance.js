@@ -1,175 +1,87 @@
-const STORAGE_KEY = "hsc-maths-performance-v1";
+const STORAGE_KEY = "hsc-maths-performance-v2";
 const COURSE_META = {
   ext1: { label: "Extension 1", full: "Mathematics Extension 1" },
   ext2: { label: "Extension 2", full: "Mathematics Extension 2" }
 };
 const DEFAULT_STATE = {
   activeCourse: "ext1",
-  courses: {
-    ext1: { target: 90, tasks: [] },
-    ext2: { target: 90, tasks: [] }
-  },
-  predictor: { ext1: { assessment: "", exam: "", schoolAverage: "" }, ext2: { assessment: "", exam: "", schoolAverage: "" } }
+  courses: { ext1:{target:90,tasks:[]}, ext2:{target:90,tasks:[]} },
+  rankModel: {
+    ext1:{school:"",rank:"",cohort:"",year:"2025",data:null},
+    ext2:{school:"",rank:"",cohort:"",year:"2025",data:null}
+  }
 };
 
-function cloneDefault(){ return JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+function cloneDefault(){return JSON.parse(JSON.stringify(DEFAULT_STATE));}
+function validNumber(v,min,max){const n=Number(v);return v!==""&&Number.isFinite(n)&&n>=min&&n<=max;}
+function num(v){const n=Number(v);return Number.isFinite(n)?n:0;}
+function fmt(v,d=1){return Number.isFinite(v)?v.toFixed(d):"--";}
+function uid(){return `${Date.now().toString(36)}${Math.random().toString(36).slice(2,7)}`;}
+function normaliseTask(t){return{id:t?.id||uid(),name:String(t?.name||""),mark:t?.mark??"",outOf:t?.outOf??"",weight:t?.weight??""};}
 function loadState(){
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (!saved || typeof saved !== "object") return cloneDefault();
-    const base = cloneDefault();
-    base.activeCourse = COURSE_META[saved.activeCourse] ? saved.activeCourse : "ext1";
-    for (const key of Object.keys(COURSE_META)) {
-      if (saved.courses?.[key]) {
-        base.courses[key].target = validNumber(saved.courses[key].target, 0, 100) ? Number(saved.courses[key].target) : 90;
-        base.courses[key].tasks = Array.isArray(saved.courses[key].tasks) ? saved.courses[key].tasks.map(normaliseTask) : [];
+  try{
+    const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const base=cloneDefault();
+    if(!saved||typeof saved!=="object")return base;
+    base.activeCourse=COURSE_META[saved.activeCourse]?saved.activeCourse:"ext1";
+    Object.keys(COURSE_META).forEach(k=>{
+      if(saved.courses?.[k]){
+        base.courses[k].target=validNumber(saved.courses[k].target,0,100)?Number(saved.courses[k].target):90;
+        base.courses[k].tasks=Array.isArray(saved.courses[k].tasks)?saved.courses[k].tasks.map(normaliseTask):[];
       }
-      if (saved.predictor?.[key]) base.predictor[key] = { ...base.predictor[key], ...saved.predictor[key] };
-    }
+      if(saved.rankModel?.[k])base.rankModel[k]={...base.rankModel[k],...saved.rankModel[k]};
+    });
     return base;
-  } catch { return cloneDefault(); }
+  }catch{return cloneDefault();}
 }
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-function uid(){ return `${Date.now().toString(36)}${Math.random().toString(36).slice(2,7)}`; }
-function normaliseTask(task){
-  return { id: task?.id || uid(), name: String(task?.name || ""), mark: task?.mark ?? "", outOf: task?.outOf ?? "", weight: task?.weight ?? "" };
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+const state=loadState();
+
+const courseTabs=document.getElementById("course-tabs"),taskList=document.getElementById("task-list"),addTaskButton=document.getElementById("add-task"),targetInput=document.getElementById("target-mark"),themeToggle=document.getElementById("theme-toggle"),themeLabel=themeToggle.querySelector(".theme-label");
+const schoolInput=document.getElementById("school-name"),rankInput=document.getElementById("current-rank"),cohortInput=document.getElementById("cohort-size"),yearInput=document.getElementById("reference-year"),lookupButton=document.getElementById("lookup-school"),clearRankButton=document.getElementById("clear-rank");
+function activeCourse(){return state.courses[state.activeCourse];}
+function activeRank(){return state.rankModel[state.activeCourse];}
+
+function getInitialTheme(){const s=localStorage.getItem("hsc-maths-theme");if(s==="light"||s==="dark")return s;return matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";}
+function applyTheme(t){document.documentElement.dataset.theme=t;themeLabel.textContent=t==="dark"?"Light":"Dark";document.querySelector('meta[name="theme-color"]')?.setAttribute("content",t==="dark"?"#060914":"#eef4ff");}
+themeToggle.addEventListener("click",()=>{const n=document.documentElement.dataset.theme==="dark"?"light":"dark";localStorage.setItem("hsc-maths-theme",n);applyTheme(n);});
+
+function renderTabs(){const f=document.createDocumentFragment();Object.entries(COURSE_META).forEach(([k,m])=>{const b=document.createElement("button");b.type="button";b.className=`segment-button${state.activeCourse===k?" active":""}`;b.textContent=m.label;b.onclick=()=>{state.activeCourse=k;save();render();};f.appendChild(b);});courseTabs.replaceChildren(f);}
+function taskValidity(t){const has=t.mark!==""||t.outOf!=="";const weightOK=validNumber(t.weight,0,100);const markOK=has&&validNumber(t.mark,0,1e6)&&validNumber(t.outOf,0.000001,1e6)&&num(t.mark)<=num(t.outOf);return{has,weightOK,markOK,complete:weightOK&&markOK};}
+function calculate(){let totalWeight=0,completedWeight=0,contribution=0,invalidMarks=0;for(const t of activeCourse().tasks){const v=taskValidity(t);if(v.weightOK)totalWeight+=num(t.weight);if(v.has&&!v.markOK)invalidMarks++;if(v.complete){completedWeight+=num(t.weight);contribution+=(num(t.mark)/num(t.outOf))*num(t.weight);}}const weightedAverage=completedWeight?contribution/completedWeight*100:0,remaining=Math.max(0,100-completedWeight);return{totalWeight,completedWeight,contribution,weightedAverage,remaining,bestPossible:Math.min(100,contribution+remaining),invalidMarks};}
+function renderTasks(){const f=document.createDocumentFragment();activeCourse().tasks.forEach(t=>{const row=document.createElement("div");row.className="task-row";const name=document.createElement("input");name.type="text";name.placeholder="e.g. Task 1 - Vectors";name.value=t.name;const pair=document.createElement("div");pair.className="mark-pair";const mark=document.createElement("input");mark.type="number";mark.min="0";mark.step="0.5";mark.placeholder="mark";mark.value=t.mark;const slash=document.createElement("span");slash.textContent="/";const out=document.createElement("input");out.type="number";out.min="0.01";out.step="0.5";out.placeholder="out of";out.value=t.outOf;pair.append(mark,slash,out);const ww=document.createElement("div");ww.className="weight-input";const weight=document.createElement("input");weight.type="number";weight.min="0";weight.max="100";weight.step="0.5";weight.placeholder="20";weight.value=t.weight;ww.appendChild(weight);const contrib=document.createElement("div");contrib.className="task-contribution";const remove=document.createElement("button");remove.type="button";remove.className="remove-task";remove.textContent="x";const update=(field,value)=>{t[field]=value;save();renderSummary();const v=taskValidity(t);contrib.textContent=v.complete?`${fmt((num(t.mark)/num(t.outOf))*num(t.weight),2)} pts`:"--";row.classList.toggle("task-invalid",v.has&&!v.markOK);};name.oninput=e=>update("name",e.target.value);mark.oninput=e=>update("mark",e.target.value);out.oninput=e=>update("outOf",e.target.value);weight.oninput=e=>update("weight",e.target.value);remove.onclick=()=>{activeCourse().tasks=activeCourse().tasks.filter(x=>x.id!==t.id);save();render();};const v=taskValidity(t);contrib.textContent=v.complete?`${fmt((num(t.mark)/num(t.outOf))*num(t.weight),2)} pts`:"--";row.classList.toggle("task-invalid",v.has&&!v.markOK);row.append(name,pair,ww,contrib,remove);f.appendChild(row);});if(!activeCourse().tasks.length){const e=document.createElement("div");e.className="mastery-empty";e.textContent="No tasks yet. Add your school assessments here to track your raw internal position.";f.appendChild(e);}taskList.replaceChildren(f);}
+function renderSummary(){const c=calculate();document.getElementById("current-mark").textContent=c.completedWeight?`${fmt(c.weightedAverage)}%`:"0.0%";document.getElementById("hero-course-mark").textContent=c.completedWeight?`${fmt(c.weightedAverage)}%`:"--";document.getElementById("completed-weight").textContent=`${fmt(c.completedWeight)}%`;document.getElementById("remaining-weight").textContent=`${fmt(c.remaining)}%`;document.getElementById("locked-contribution").textContent=`${fmt(c.contribution,2)} pts`;document.getElementById("best-possible").textContent=`${fmt(c.bestPossible)}%`;const w=document.getElementById("weight-warning"),m=[];if(c.totalWeight>100.0001)m.push(`Your task weightings total ${fmt(c.totalWeight)}%. They cannot exceed 100%.`);else if(c.totalWeight<99.999&&activeCourse().tasks.length)m.push(`Entered task weightings total ${fmt(c.totalWeight)}%. ${fmt(100-c.totalWeight)}% is still unallocated.`);if(c.invalidMarks)m.push(`${c.invalidMarks} task mark${c.invalidMarks===1?" is":"s are"} invalid.`);w.textContent=m.join(" ");w.classList.toggle("hidden",!m.length);targetInput.value=activeCourse().target;const target=num(activeCourse().target),r=document.getElementById("target-result");if(!c.completedWeight)r.textContent="Add completed tasks to calculate what you need.";else if(c.remaining<=0)r.textContent=`Final weighted raw mark: ${fmt(c.contribution)}%.`;else{const req=(target-c.contribution)/c.remaining*100;r.textContent=req<=0?"Target already secured mathematically.":req>100?`Target is no longer reachable. You would need ${fmt(req)}% across the remaining weighting.`:`You need ${fmt(req)}% on average across the remaining ${fmt(c.remaining)}% weighting to finish on ${fmt(target)}%.`;}}
+targetInput.oninput=e=>{activeCourse().target=Math.max(0,Math.min(100,num(e.target.value)));save();renderSummary();};addTaskButton.onclick=()=>{activeCourse().tasks.push({id:uid(),name:"",mark:"",outOf:"",weight:""});save();renderTasks();renderSummary();};
+
+// Acklam inverse-normal approximation. p is cumulative probability in (0,1).
+function invNorm(p){
+  if(p<=0)return-Infinity;if(p>=1)return Infinity;
+  const a=[-39.6968302866538,220.946098424521,-275.928510446969,138.357751867269,-30.6647980661472,2.50662827745924],b=[-54.4760987982241,161.585836858041,-155.698979859887,66.8013118877197,-13.2806815528857],c=[-.00778489400243029,-.322396458041136,-2.40075827716184,-2.54973253934373,4.37466414146497,2.93816398269878],d=[.00778469570904146,.32246712907004,2.445134137143,3.75440866190742];
+  const pl=.02425,ph=1-pl;let q,r;if(p<pl){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}if(p>ph){q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}q=p-.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+function officialBand(mark){if(mark>=90)return{code:"E4",label:"Top band"};if(mark>=70)return{code:"E3",label:"Band 3 of 4"};if(mark>=50)return{code:"E2",label:"Band 2 of 4"};return{code:"E1",label:"Band 1 of 4"};}
+function rankPercentile(rank,n){return Math.max(.005,Math.min(.995,1-(rank-.5)/n));}
+function estimateSigma(avg,topCount,cohort){
+  if(Number.isFinite(topCount)&&topCount>0&&topCount<cohort&&avg<90){const rate=Math.max(.01,Math.min(.95,topCount/cohort));const z=invNorm(1-rate);if(Number.isFinite(z)&&z>.15){const s=(90-avg)/z;if(s>=3&&s<=18)return{s,calibrated:true};}}
+  return{s:8,calibrated:false};
 }
-function validNumber(value,min,max){ const n=Number(value); return value!=="" && Number.isFinite(n) && n>=min && n<=max; }
-function num(value){ const n=Number(value); return Number.isFinite(n) ? n : 0; }
-function fmt(value,d=1){ return Number.isFinite(value) ? value.toFixed(d) : "--"; }
-
-const state = loadState();
-const courseTabs = document.getElementById("course-tabs");
-const taskList = document.getElementById("task-list");
-const addTaskButton = document.getElementById("add-task");
-const targetInput = document.getElementById("target-mark");
-const themeToggle = document.getElementById("theme-toggle");
-const themeLabel = themeToggle.querySelector(".theme-label");
-const assessmentInput = document.getElementById("assessment-estimate");
-const examInput = document.getElementById("exam-estimate");
-const schoolAverageInput = document.getElementById("school-average");
-
-function activeCourse(){ return state.courses[state.activeCourse]; }
-function activePredictor(){ return state.predictor[state.activeCourse]; }
-function getInitialTheme(){ const saved=localStorage.getItem("hsc-maths-theme"); if(saved==="light"||saved==="dark")return saved; return window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; }
-function applyTheme(theme){ document.documentElement.dataset.theme=theme; themeLabel.textContent=theme==="dark"?"Light":"Dark"; document.querySelector('meta[name="theme-color"]')?.setAttribute("content",theme==="dark"?"#060914":"#eef4ff"); }
-themeToggle.addEventListener("click",()=>{ const next=document.documentElement.dataset.theme==="dark"?"light":"dark"; localStorage.setItem("hsc-maths-theme",next); applyTheme(next); });
-
-function renderTabs(){
-  const frag=document.createDocumentFragment();
-  Object.entries(COURSE_META).forEach(([key,meta])=>{
-    const button=document.createElement("button");
-    button.type="button"; button.className=`segment-button${state.activeCourse===key?" active":""}`; button.textContent=meta.label;
-    button.setAttribute("aria-pressed",state.activeCourse===key?"true":"false");
-    button.addEventListener("click",()=>{ state.activeCourse=key; save(); render(); });
-    frag.appendChild(button);
-  });
-  courseTabs.replaceChildren(frag);
+function syncRankInputs(){const r=activeRank();schoolInput.value=r.school||"";rankInput.value=r.rank||"";cohortInput.value=r.cohort||"";yearInput.value=r.year||"2025";renderRankResult();}
+function setLookupStatus(text,error=false){const e=document.getElementById("lookup-status");e.innerHTML=text;e.classList.toggle("lookup-error",error);}
+function renderRankResult(){
+  const r=activeRank(),data=r.data,rank=Number(r.rank),cohort=Number(r.cohort);const badge=document.getElementById("band-badge"),markOut=document.getElementById("projected-hsc"),analysis=document.getElementById("rank-analysis");
+  badge.className="band-badge neutral";badge.textContent="--";markOut.textContent="--";analysis.textContent="Enter your school, rank and cohort size.";document.getElementById("school-average-out").textContent="--";document.getElementById("rank-percentile").textContent="--";document.getElementById("top-band-count").textContent="--";document.getElementById("confidence-out").textContent="--";
+  if(!data||!validNumber(r.rank,1,10000)||!validNumber(r.cohort,2,10000)||rank>cohort)return;
+  const avg=Number(data.average);if(!Number.isFinite(avg)) {analysis.textContent="HSCninja did not expose a usable school-course average for this result, so a mark projection would be too speculative.";return;}
+  const latest=(data.history||[]).find(h=>Number.isFinite(Number(h.topBandCount)))||{};const top=Number(latest.topBandCount),pct=rankPercentile(rank,cohort),z=invNorm(pct),spread=estimateSigma(avg,top,cohort);let estimate=avg+z*spread.s;estimate=Math.max(35,Math.min(99.5,estimate));const band=officialBand(estimate);
+  badge.className=`band-badge ${band.code.toLowerCase()}`;badge.textContent=`${band.code} · ${band.label}`;markOut.textContent=fmt(estimate);document.getElementById("school-average-out").textContent=`${fmt(avg)} /100`;document.getElementById("rank-percentile").textContent=`${Math.round(pct*100)}th`;document.getElementById("top-band-count").textContent=Number.isFinite(top)?String(top):"--";const confidence=(data.history?.filter(h=>h.average!=null).length>=2&&spread.calibrated)?"Higher":data.history?.some(h=>h.average!=null)?"Medium":"Low";document.getElementById("confidence-out").textContent=confidence;
+  const middle=Math.abs(pct-.5)<.06;analysis.textContent=middle?`Rank ${rank}/${cohort} is roughly the middle of your cohort, so the school's recent ${fmt(avg)} average is the sensible centre estimate. The model currently projects about ${fmt(estimate)}.`:`Rank ${rank}/${cohort} places you around the ${Math.round(pct*100)}th percentile of your school cohort. Using ${data.school}'s recent ${COURSE_META[state.activeCourse].label} HSC average of ${fmt(avg)}, the model projects about ${fmt(estimate)}.`;
 }
-
-function taskValidity(task){
-  const hasAny = task.mark!=="" || task.outOf!=="";
-  const weightOK = validNumber(task.weight,0,100);
-  const markOK = task.mark==="" && task.outOf==="" ? false : validNumber(task.mark,0,1000000) && validNumber(task.outOf,0.000001,1000000) && num(task.mark)<=num(task.outOf);
-  return { hasAny, weightOK, markOK, complete: weightOK && markOK };
+async function lookupSchool(){
+  const r=activeRank();r.school=schoolInput.value.trim();r.rank=rankInput.value;r.cohort=cohortInput.value;r.year=yearInput.value;save();
+  const rank=Number(r.rank),cohort=Number(r.cohort);if(!r.school){setLookupStatus("<strong>Enter your school first.</strong>",true);return;}if(!Number.isInteger(rank)||!Number.isInteger(cohort)||rank<1||cohort<2||rank>cohort){setLookupStatus("<strong>Check the rank.</strong> Rank must be a whole number from 1 up to your cohort size.",true);return;}
+  lookupButton.disabled=true;lookupButton.textContent="Analysing...";setLookupStatus("Looking up recent school-course HSC data...");
+  try{const q=new URLSearchParams({school:r.school,course:state.activeCourse,year:r.year});const resp=await fetch(`/api/hsc-school?${q}`);const data=await resp.json();if(!resp.ok)throw new Error(data.error||"Lookup failed");r.data=data;r.school=data.school||r.school;schoolInput.value=r.school;save();renderRankResult();setLookupStatus(`<strong>${data.school}</strong> · ${data.course} · using ${data.history.length} recent year${data.history.length===1?"":"s"} of available HSCninja data.`);}catch(e){r.data=null;save();renderRankResult();setLookupStatus(`<strong>Could not get usable school data.</strong> ${e.message}`,true);}finally{lookupButton.disabled=false;lookupButton.textContent="Analyse school + rank";}
 }
+lookupButton.onclick=lookupSchool;clearRankButton.onclick=()=>{state.rankModel[state.activeCourse]={school:"",rank:"",cohort:"",year:"2025",data:null};save();syncRankInputs();setLookupStatus("<strong>Model logic:</strong> rank is converted to a cohort percentile and mapped around your school's recent HSC course performance.");};[schoolInput,rankInput,cohortInput,yearInput].forEach(el=>el.addEventListener("change",()=>{const r=activeRank();r.school=schoolInput.value.trim();r.rank=rankInput.value;r.cohort=cohortInput.value;r.year=yearInput.value;r.data=null;save();renderRankResult();}));
 
-function calculate(){
-  let totalWeight=0, completedWeight=0, contribution=0, invalidMarks=0;
-  for(const task of activeCourse().tasks){
-    const v=taskValidity(task);
-    if(v.weightOK) totalWeight+=num(task.weight);
-    if(v.hasAny && !v.markOK) invalidMarks++;
-    if(v.complete){
-      completedWeight+=num(task.weight);
-      contribution+=(num(task.mark)/num(task.outOf))*num(task.weight);
-    }
-  }
-  const weightedAverage=completedWeight>0 ? contribution/completedWeight*100 : 0;
-  const remaining=Math.max(0,100-completedWeight);
-  const bestPossible=Math.min(100,contribution+remaining);
-  return { totalWeight,completedWeight,contribution,weightedAverage,remaining,bestPossible,invalidMarks };
-}
-
-function renderTasks(){
-  const frag=document.createDocumentFragment();
-  activeCourse().tasks.forEach(task=>{
-    const row=document.createElement("div"); row.className="task-row";
-    const name=document.createElement("input"); name.type="text"; name.placeholder="e.g. Task 1 - Vectors"; name.value=task.name;
-    const pair=document.createElement("div"); pair.className="mark-pair";
-    const mark=document.createElement("input"); mark.type="number"; mark.min="0"; mark.step="0.5"; mark.placeholder="mark"; mark.value=task.mark;
-    const slash=document.createElement("span"); slash.textContent="/";
-    const out=document.createElement("input"); out.type="number"; out.min="0.01"; out.step="0.5"; out.placeholder="out of"; out.value=task.outOf;
-    pair.append(mark,slash,out);
-    const weightWrap=document.createElement("div"); weightWrap.className="weight-input";
-    const weight=document.createElement("input"); weight.type="number"; weight.min="0"; weight.max="100"; weight.step="0.5"; weight.placeholder="20"; weight.value=task.weight; weightWrap.appendChild(weight);
-    const contribution=document.createElement("div"); contribution.className="task-contribution";
-    const v=taskValidity(task); contribution.textContent=v.complete?`${fmt((num(task.mark)/num(task.outOf))*num(task.weight),2)} pts`:"--";
-    if(v.hasAny&&!v.markOK) row.classList.add("task-invalid");
-    const remove=document.createElement("button"); remove.type="button"; remove.className="remove-task"; remove.textContent="x"; remove.setAttribute("aria-label",`Remove ${task.name||"task"}`);
-    const update=(field,value)=>{ task[field]=value; save(); renderSummary(); contribution.textContent=taskValidity(task).complete?`${fmt((num(task.mark)/num(task.outOf))*num(task.weight),2)} pts`:"--"; row.classList.toggle("task-invalid",taskValidity(task).hasAny&&!taskValidity(task).markOK); };
-    name.addEventListener("input",e=>update("name",e.target.value)); mark.addEventListener("input",e=>update("mark",e.target.value)); out.addEventListener("input",e=>update("outOf",e.target.value)); weight.addEventListener("input",e=>update("weight",e.target.value));
-    remove.addEventListener("click",()=>{ activeCourse().tasks=activeCourse().tasks.filter(t=>t.id!==task.id); save(); render(); });
-    row.append(name,pair,weightWrap,contribution,remove); frag.appendChild(row);
-  });
-  if(!activeCourse().tasks.length){ const empty=document.createElement("div"); empty.className="mastery-empty"; empty.textContent="No tasks yet. Add your first assessment and enter its mark, maximum mark and weighting."; frag.appendChild(empty); }
-  taskList.replaceChildren(frag);
-}
-
-function renderSummary(){
-  const c=calculate();
-  document.getElementById("current-mark").textContent=c.completedWeight?`${fmt(c.weightedAverage)}%`:"0.0%";
-  document.getElementById("hero-course-mark").textContent=c.completedWeight?`${fmt(c.weightedAverage)}%`:"--";
-  document.getElementById("completed-weight").textContent=`${fmt(c.completedWeight)}%`;
-  document.getElementById("remaining-weight").textContent=`${fmt(c.remaining)}%`;
-  document.getElementById("locked-contribution").textContent=`${fmt(c.contribution,2)} pts`;
-  document.getElementById("best-possible").textContent=`${fmt(c.bestPossible)}%`;
-  const warning=document.getElementById("weight-warning");
-  const messages=[];
-  if(c.totalWeight>100.0001) messages.push(`Your task weightings total ${fmt(c.totalWeight)}%. They cannot exceed 100%.`);
-  else if(c.totalWeight<99.999 && activeCourse().tasks.length) messages.push(`Entered task weightings total ${fmt(c.totalWeight)}%. ${fmt(100-c.totalWeight)}% is still unallocated.`);
-  if(c.invalidMarks) messages.push(`${c.invalidMarks} task mark${c.invalidMarks===1?" is":"s are"} invalid. A mark cannot exceed its maximum and the maximum must be above 0.`);
-  warning.textContent=messages.join(" "); warning.classList.toggle("hidden",!messages.length);
-  targetInput.value=activeCourse().target;
-  const target=num(activeCourse().target); const targetResult=document.getElementById("target-result");
-  if(!c.completedWeight){ targetResult.textContent="Add completed tasks to calculate what you need."; }
-  else if(c.remaining<=0){ const gap=c.contribution-target; targetResult.textContent=gap>=0?`Final weighted mark is ${fmt(c.contribution)}%, ${fmt(gap)} points above target.`:`Final weighted mark is ${fmt(c.contribution)}%, ${fmt(Math.abs(gap))} points below target.`; }
-  else {
-    const required=(target-c.contribution)/c.remaining*100;
-    if(required<=0) targetResult.textContent=`Target already secured even if the remaining assessments score 0%.`;
-    else if(required>100) targetResult.textContent=`Target is no longer mathematically reachable. You would need ${fmt(required)}% across the remaining ${fmt(c.remaining)}% weighting.`;
-    else targetResult.textContent=`You need an average of ${fmt(required)}% across the remaining ${fmt(c.remaining)}% weighting to finish on ${fmt(target)}%.`;
-  }
-}
-
-targetInput.addEventListener("input",e=>{ const v=Math.max(0,Math.min(100,num(e.target.value))); activeCourse().target=v; save(); renderSummary(); });
-addTaskButton.addEventListener("click",()=>{ activeCourse().tasks.push({id:uid(),name:"",mark:"",outOf:"",weight:""}); save(); renderTasks(); renderSummary(); taskList.querySelector(".task-row:last-child input")?.focus(); });
-
-function bandFor(mark){ if(mark>=90)return "E4"; if(mark>=70)return "E3"; if(mark>=50)return "E2"; return "E1"; }
-function describeBand(mark){ const band=bandFor(mark); const next=band==="E4"?null:band==="E3"?90:band==="E2"?70:50; if(!next)return "This projection sits in E4, the highest Extension performance band."; return `This projection sits in ${band}. It is ${fmt(next-mark)} normalised marks below the next band boundary.`; }
-function examNeeded(assessment,target){ return 2*target-assessment; }
-function neededText(value){ if(value<=0)return "Already secured*"; if(value>100)return "Not reachable*"; return `${fmt(value)} /100`; }
-
-function syncPredictorInputs(){ const p=activePredictor(); assessmentInput.value=p.assessment; examInput.value=p.exam; schoolAverageInput.value=p.schoolAverage; }
-function renderPredictor(){
-  const p=activePredictor(); const assessment=Number(p.assessment), exam=Number(p.exam), school=Number(p.schoolAverage);
-  const assessmentOK=validNumber(p.assessment,0,100), examOK=validNumber(p.exam,0,100), schoolOK=validNumber(p.schoolAverage,0,100);
-  const badge=document.getElementById("band-badge"), projected=document.getElementById("projected-hsc"), analysis=document.getElementById("band-analysis");
-  badge.className="band-badge neutral"; badge.textContent="--"; projected.textContent="--"; analysis.textContent="Enter a valid moderated assessment estimate and exam estimate to generate a projection.";
-  document.getElementById("needed-e4").textContent=assessmentOK?neededText(examNeeded(assessment,90)):"--";
-  document.getElementById("needed-e3").textContent=assessmentOK?neededText(examNeeded(assessment,70)):"--";
-  document.getElementById("school-delta").textContent="--";
-  if(!(assessmentOK&&examOK))return;
-  const hsc=(assessment+exam)/2, band=bandFor(hsc);
-  badge.className=`band-badge ${band.toLowerCase()}`; badge.textContent=band; projected.textContent=fmt(hsc);
-  let text=describeBand(hsc)+` On the official /50 Extension scale this is approximately ${fmt(hsc/2,1)}/50.`;
-  if(schoolOK){ const delta=hsc-school; document.getElementById("school-delta").textContent=`${delta>=0?"+":""}${fmt(delta)}`; text+=` Your projection is ${fmt(Math.abs(delta))} marks ${delta>=0?"above":"below"} the HSCninja school average you entered. This comparison does not change the projected band.`; }
-  analysis.textContent=text;
-}
-function updatePredictor(field,value){ activePredictor()[field]=value; save(); renderPredictor(); }
-assessmentInput.addEventListener("input",e=>updatePredictor("assessment",e.target.value)); examInput.addEventListener("input",e=>updatePredictor("exam",e.target.value)); schoolAverageInput.addEventListener("input",e=>updatePredictor("schoolAverage",e.target.value));
-document.getElementById("use-internal").addEventListener("click",()=>{ const c=calculate(); if(!c.completedWeight)return; activePredictor().assessment=fmt(c.weightedAverage); save(); syncPredictorInputs(); renderPredictor(); });
-document.getElementById("clear-predictor").addEventListener("click",()=>{ state.predictor[state.activeCourse]={assessment:"",exam:"",schoolAverage:""}; save(); syncPredictorInputs(); renderPredictor(); });
-
-function render(){ renderTabs(); renderTasks(); renderSummary(); syncPredictorInputs(); renderPredictor(); }
-applyTheme(getInitialTheme()); render();
+function render(){renderTabs();renderTasks();renderSummary();syncRankInputs();}
+applyTheme(getInitialTheme());render();
