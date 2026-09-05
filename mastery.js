@@ -56,6 +56,7 @@ function getInitialTheme() {
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   themeLabel.textContent = theme === "dark" ? "Light" : "Dark";
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#060914" : "#eef4ff");
 }
 themeToggle.addEventListener("click", () => {
   const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
@@ -226,6 +227,10 @@ function updateOverall() {
   document.getElementById("overall-red").textContent = s.red;
   document.getElementById("overall-yellow").textContent = s.yellow;
   document.getElementById("overall-remaining").textContent = s.remaining;
+  const ring = document.getElementById("mastery-ring");
+  const ringValue = document.getElementById("mastery-ring-value");
+  if (ring) ring.style.setProperty("--progress", s.greenPct);
+  if (ringValue) ringValue.textContent = `${s.greenPct}%`;
 }
 
 function render() {
@@ -253,4 +258,33 @@ clearButton.addEventListener("click", () => {
   searchInput.value = "";
   render();
 });
+
+document.addEventListener("keydown", event => {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  }
+});
+
+const glow = document.querySelector(".cursor-glow");
+if (glow && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  window.addEventListener("pointermove", event => {
+    glow.style.left = `${event.clientX}px`;
+    glow.style.top = `${event.clientY}px`;
+  }, { passive: true });
+}
+
+if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  document.querySelectorAll(".tilt-card").forEach(card => {
+    card.addEventListener("pointermove", event => {
+      const rect = card.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width;
+      const y = (event.clientY - rect.top) / rect.height;
+      card.style.transform = `perspective(900px) rotateX(${(0.5-y)*3}deg) rotateY(${(x-0.5)*4}deg)`;
+    });
+    card.addEventListener("pointerleave", () => { card.style.transform = ""; });
+  });
+}
+
 render();
