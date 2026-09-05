@@ -10,49 +10,49 @@
 <body>
   <div class="top-rule"></div>
 
-  <div class="page-shell">
-    <aside class="filter-panel" id="filter-panel">
-      <div class="filter-head">
-        <div class="filter-title-row">
-          <span class="filter-kicker">FILTERS</span>
-          <span id="active-filter-count" class="active-filter-count"></span>
-        </div>
-        <div class="filter-actions">
-          <button id="reset-filters" class="text-button" type="button">reset</button>
-          <button id="collapse-filters" class="icon-button" type="button" aria-label="Collapse filters" title="Collapse filters">‹</button>
-        </div>
+  <main class="content-shell">
+    <header class="page-header">
+      <div class="title-line">
+        <h1>Maths Archive</h1>
+        <span class="archive-mark">/</span>
+      </div>
+      <p class="subtitle">NSW HSC Mathematics · Extension 1 &amp; Extension 2</p>
+    </header>
+
+    <div class="control-bar">
+      <div class="quick-filter" aria-label="Course filter">
+        <span class="control-label">Course</span>
+        <div id="course-filter" class="segmented"></div>
       </div>
 
-      <div id="filter-groups"></div>
-    </aside>
-
-    <button id="show-filters" class="show-filters hidden-control" type="button">Filters</button>
-
-    <main class="content">
-      <header class="page-header">
-        <div class="eyebrow">NSW HSC · 3U + 4U</div>
-        <div class="title-line">
-          <h1>Maths Archive</h1>
-          <span class="archive-mark">/</span>
-        </div>
-      </header>
-
-      <div class="toolbar">
-        <div class="search-wrap">
-          <span class="search-mark">⌕</span>
-          <input
-            id="search"
-            type="search"
-            placeholder="Search papers, schools, topics"
-            autocomplete="off"
-          >
-        </div>
-        <span id="result-count" class="result-count"></span>
+      <div class="quick-filter" aria-label="Resource type filter">
+        <span class="control-label">Show</span>
+        <div id="type-filter" class="segmented"></div>
       </div>
 
-      <div id="resource-tree"></div>
-    </main>
-  </div>
+      <div id="source-filter-wrap" class="quick-filter source-filter-wrap hidden-control">
+        <label class="control-label" for="source-filter">Source</label>
+        <select id="source-filter"></select>
+      </div>
+
+      <button id="clear-view" class="clear-view hidden-control" type="button">Clear view</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-mark">⌕</span>
+        <input
+          id="search"
+          type="search"
+          placeholder="Search papers, schools, topics"
+          autocomplete="off"
+        >
+      </div>
+      <span id="result-count" class="result-count"></span>
+    </div>
+
+    <div id="resource-tree"></div>
+  </main>
 
   <script src="resources.js"></script>
   <script src="script.js"></script>
