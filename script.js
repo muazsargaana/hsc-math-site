@@ -273,7 +273,15 @@ function createNode(node, depth = 0, path = []) {
   const title = document.createElement("button");
   title.type = "button";
   title.className = "folder-title";
-  const autoOpen = Boolean((viewState.type && depth <= 1) || (viewState.source && depth <= 2));
+
+  // Expand the hierarchy only as far as the user's current selection makes useful.
+  // Course selected -> open course. Resource type selected -> open course + category.
+  // Source selected -> open course + category + source.
+  const autoOpen = Boolean(
+    (depth === 0 && (viewState.course || viewState.type || viewState.source)) ||
+    (depth === 1 && (viewState.type || viewState.source)) ||
+    (depth === 2 && viewState.source)
+  );
   title.setAttribute("aria-expanded", autoOpen ? "true" : "false");
 
   const arrow = document.createElement("span");
