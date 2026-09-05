@@ -52,6 +52,10 @@ const viewState = {
   source: ""
 };
 
+function isHiddenFolder(name) {
+  return typeof name === "string" && name.toLowerCase().includes("unknown school");
+}
+
 function getInitialTheme() {
   const saved = localStorage.getItem("hsc-maths-theme");
   if (saved === "light" || saved === "dark") return saved;
@@ -134,7 +138,7 @@ function sourceOptionsForCurrentView() {
     if (!category) return;
 
     (category.children || []).forEach(child => {
-      if (child.type === "folder") names.push(child.name);
+      if (child.type === "folder" && !isHiddenFolder(child.name)) names.push(child.name);
     });
   });
 
@@ -225,6 +229,7 @@ clearViewButton.addEventListener("click", () => {
 
 function cloneForView(node, context = {}) {
   if (node.type === "file") return { ...node };
+  if (isHiddenFolder(node.name)) return null;
 
   if (!context.course) {
     if (viewState.course && node.name !== viewState.course) return null;
