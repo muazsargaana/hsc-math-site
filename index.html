@@ -3,67 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Math Resources</title>
+  <meta name="theme-color" content="#060914">
+  <title>HSC Maths Hub</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="mastery.css">
   <link rel="stylesheet" href="resources-extra.css">
 </head>
-
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
-  <div class="top-rule"></div>
+  <div class="page-noise" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <div class="aurora aurora-a" aria-hidden="true"></div>
+  <div class="aurora aurora-b" aria-hidden="true"></div>
+  <div class="grid-field" aria-hidden="true"></div>
 
   <main class="content-shell">
-    <header class="page-header">
-      <div class="header-row">
-        <div class="hero-copy">
-          <nav class="site-nav" aria-label="Main navigation">
-            <a class="active" href="/">Resources</a>
-            <a href="/mastery/">Mastery</a>
-          </nav>
-          <div class="eyebrow">HSC MATHS HUB</div>
-          <h1>Everything you need.<br><span>Nothing you don’t.</span></h1>
-          <p class="subtitle">NSW HSC Mathematics · Extension 1 &amp; Extension 2</p>
-          <div class="hero-tags" aria-hidden="true">
-            <span>Trials</span><span>Textbooks</span><span>Topic sets</span><span>Notes</span>
-          </div>
-        </div>
+    <nav class="top-dock" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="HSC Maths Hub home">
+        <span class="brand-mark">∑</span>
+        <span>HSC Maths</span>
+      </a>
+      <div class="dock-links">
+        <a class="active" href="/">Resources</a>
+        <a href="/mastery/">Mastery</a>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme">
+        <span class="theme-icon" aria-hidden="true"></span>
+        <span class="theme-label">Light</span>
+      </button>
+    </nav>
 
-        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme">
-          <span class="theme-icon" aria-hidden="true"></span>
-          <span class="theme-label">Light</span>
-        </button>
+    <header class="hero-section">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span> NSW HSC · EXTENSION MATHEMATICS</div>
+        <h1>Your maths <span>command centre.</span></h1>
+        <p class="hero-lead">Trials, prelim papers, textbooks, topic sets and mastery tracking in one fast workspace.</p>
+        <div class="hero-actions">
+          <button class="primary-action" type="button" data-jump="resources">Browse resources <span>↘</span></button>
+          <a class="secondary-action" href="/mastery/">Open mastery tracker <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="math-stage tilt-card" aria-hidden="true">
+        <div class="stage-grid"></div>
+        <div class="stage-ring ring-one"></div>
+        <div class="stage-ring ring-two"></div>
+        <div class="formula formula-a">e<sup>iπ</sup> + 1 = 0</div>
+        <div class="formula formula-b">∫ f(x) dx</div>
+        <div class="formula formula-c">z = r(cos θ + i sin θ)</div>
+        <div class="formula formula-d">a = v dv/dx</div>
+        <div class="stage-core">
+          <span class="core-kicker">HSC</span>
+          <strong>3U + 4U</strong>
+          <small>Prelim → HSC</small>
+        </div>
       </div>
     </header>
 
-    <section class="resource-panel">
+    <section class="quick-launch" aria-label="Quick course access">
+      <button class="launch-card launch-prelim tilt-card" data-course="Mathematics Extension 1 · Preliminary" type="button">
+        <span class="launch-index">01</span>
+        <span class="launch-chip">YEAR 11</span>
+        <strong>Ext 1 Preliminary</strong>
+        <small>Prelim papers · topic sets · textbooks</small>
+        <span class="launch-meta"><b data-count-course="Mathematics Extension 1 · Preliminary">—</b> resources <i>↗</i></span>
+      </button>
+      <button class="launch-card launch-ext1 tilt-card" data-course="Mathematics Extension 1" type="button">
+        <span class="launch-index">02</span>
+        <span class="launch-chip">YEAR 12</span>
+        <strong>Extension 1 HSC</strong>
+        <small>Trials · internals · notes · textbooks</small>
+        <span class="launch-meta"><b data-count-course="Mathematics Extension 1">—</b> resources <i>↗</i></span>
+      </button>
+      <button class="launch-card launch-ext2 tilt-card" data-course="Mathematics Extension 2" type="button">
+        <span class="launch-index">03</span>
+        <span class="launch-chip">YEAR 12</span>
+        <strong>Extension 2 HSC</strong>
+        <small>Trials · topic sets · mechanics · complex</small>
+        <span class="launch-meta"><b data-count-course="Mathematics Extension 2">—</b> resources <i>↗</i></span>
+      </button>
+      <button class="launch-card launch-shared tilt-card" data-course="Shared Resources" type="button">
+        <span class="launch-index">04</span>
+        <span class="launch-chip">LIBRARY</span>
+        <strong>Shared Resources</strong>
+        <small>Cross-course textbook libraries</small>
+        <span class="launch-meta"><b data-count-course="Shared Resources">—</b> resources <i>↗</i></span>
+      </button>
+    </section>
+
+    <section id="resources" class="resource-workspace">
+      <div class="workspace-heading">
+        <div>
+          <span class="section-kicker">RESOURCE INDEX</span>
+          <h2>Find exactly what you need.</h2>
+        </div>
+        <span id="result-count" class="result-count"></span>
+      </div>
+
       <div class="control-bar">
         <div class="quick-filter" aria-label="Course filter">
           <span class="control-label">Course</span>
           <div id="course-filter" class="segmented"></div>
         </div>
-
         <div class="quick-filter" aria-label="Resource type filter">
-          <span class="control-label">Show</span>
+          <span class="control-label">Resource type</span>
           <div id="type-filter" class="segmented"></div>
         </div>
-
         <div id="source-filter-wrap" class="quick-filter source-filter-wrap hidden-control">
           <label class="control-label" for="source-filter">Source</label>
           <select id="source-filter"></select>
         </div>
-
-        <button id="clear-view" class="clear-view hidden-control" type="button">Clear view</button>
+        <button id="clear-view" class="clear-view hidden-control" type="button">Reset view</button>
       </div>
 
       <div class="toolbar">
         <div class="search-wrap">
           <span class="search-mark">⌕</span>
-          <input id="search" type="search" placeholder="Search papers, textbooks, schools, topics" autocomplete="off">
+          <input id="search" type="search" placeholder="Search papers, textbooks, schools, topics…" autocomplete="off">
           <span class="search-hint">⌘ K</span>
         </div>
-        <span id="result-count" class="result-count"></span>
       </div>
 
       <div id="resource-tree"></div>
