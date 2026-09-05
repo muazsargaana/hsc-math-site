@@ -1,0 +1,3 @@
+.file-link::before {
+  content: attr(data-kind);
+}
