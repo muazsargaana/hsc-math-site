@@ -3,6 +3,8 @@
     let s=String(input??'').trim();
     if(!s)return '';
     s=s
+      .replace(/\bx-double-dot\b/g,'\\ddot{x}')
+      .replace(/\bx-dot\b/g,'\\dot{x}')
       .replace(/integral\s+([^,;.]+?)\s+d([a-zA-Z])/gi,'\\int $1\\,d$2')
       .replace(/sqrt\(([^()]*)\)/g,'\\sqrt{$1}')
       .replace(/conjugate\(([^()]*)\)/gi,'\\overline{$1}')
@@ -50,6 +52,9 @@
   }
 
   const patterns=[
+    /\bx-double-dot\s*=\s*[^,;.]+?(?=\s+(?:where|when|for|to|and|or|given)\b|[,;.]|$)/gi,
+    /\bx-dot\s*=\s*[^,;.]+?(?=\s+(?:where|when|for|to|and|or|given)\b|[,;.]|$)/gi,
+    /\bx-(?:double-)?dot\b/gi,
     /\b(?:d\^2[A-Za-z]\/d[A-Za-z]\^2|d2[A-Za-z]\/d[A-Za-z]2|d[A-Za-z]\/d[A-Za-z])\s*=\s*[^,;.]+?(?=\s+(?:where|when|for|to|and|or|given)\b|[,;.]|$)/g,
     /\b(?:E|Var|P)\([^)]+\)\s*=\s*[^,;.]+?(?=\s+(?:where|when|for|to|and)\b|[,;.]|$)/gi,
     /\bX\s*~\s*Bin\([^)]+\)/g,
