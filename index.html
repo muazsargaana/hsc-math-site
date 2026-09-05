@@ -13,15 +13,21 @@
   <link rel="stylesheet" href="glyph-fixes.css">
   <link rel="stylesheet" href="performance.css">
   <link rel="stylesheet" href="product-polish.css">
+  <link rel="stylesheet" href="account-ui.css">
 </head>
 <body>
   <div class="page-noise" aria-hidden="true"></div><div class="cursor-glow" aria-hidden="true"></div><div class="aurora aurora-a" aria-hidden="true"></div><div class="aurora aurora-b" aria-hidden="true"></div><div class="grid-field" aria-hidden="true"></div>
   <main class="content-shell">
     <nav class="top-dock" aria-label="Main navigation">
       <a class="brand" href="/" aria-label="HSC Maths Hub home"><span class="brand-mark"><img src="/favicon.svg" alt="" width="18" height="18"></span><span>HSC Maths</span></a>
-      <div class="dock-links"><a class="active" href="/">Resources</a><a href="/mastery/">Mastery</a><a href="/performance/">Performance</a><a href="/profile/">Profile</a></div>
-      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme"><span class="theme-icon" aria-hidden="true"></span><span class="theme-label">Light</span></button>
+      <div class="dock-links"><a class="active" href="/">Resources</a><a href="/mastery/">Mastery</a><a href="/performance/">Performance</a></div>
+      <div style="display:flex;align-items:center;gap:8px"><a id="nav-account-link" class="nav-account-link nav-account-cta" href="/login/"><span id="nav-account-text">Sign in</span></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme"><span class="theme-icon" aria-hidden="true"></span><span class="theme-label">Light</span></button></div>
     </nav>
+
+    <section id="home-auth-prompt" class="home-auth-prompt" hidden>
+      <div class="home-auth-copy"><div class="home-auth-icon">A</div><div><strong>Save your progress across devices</strong><span>Sign in to keep your school, mastery and assessment data with your account.</span></div></div>
+      <div class="home-auth-actions"><a class="signin" href="/login/">Sign in</a><a class="signup" href="/login/?mode=signup">Create account</a></div>
+    </section>
 
     <header class="hero-section">
       <div class="hero-copy">
@@ -57,5 +63,6 @@
     </section>
   </main>
   <script src="resources.js"></script><script src="external-resources.js"></script><script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="auth-client.js"></script><script src="home-auth.js"></script>
 </body>
 </html>
