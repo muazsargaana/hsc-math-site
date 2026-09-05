@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#060914">
-  <title>Mastery · HSC Maths Hub</title>
+  <title>Mastery - HSC Maths Hub</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../mastery.css">
 </head>
@@ -17,7 +17,7 @@
 
   <main class="content-shell">
     <nav class="top-dock" aria-label="Main navigation">
-      <a class="brand" href="/" aria-label="HSC Maths Hub home"><span class="brand-mark">∑</span><span>HSC Maths</span></a>
+      <a class="brand" href="/" aria-label="HSC Maths Hub home"><span class="brand-mark">M</span><span>HSC Maths</span></a>
       <div class="dock-links"><a href="/">Resources</a><a class="active" href="/mastery/">Mastery</a></div>
       <button id="theme-toggle" class="theme-toggle" type="button"><span class="theme-icon" aria-hidden="true"></span><span class="theme-label">Light</span></button>
     </nav>
@@ -26,7 +26,7 @@
       <div class="hero-copy">
         <div class="eyebrow"><span class="live-dot"></span> SYLLABUS MASTERY SYSTEM</div>
         <h1>Know exactly <span>where you stand.</span></h1>
-        <p class="hero-lead">Every assessable skill gets one clear state. No vague progress bars, no pretending “learnt” means exam-ready.</p>
+        <p class="hero-lead">Every assessable skill gets one clear state. No vague progress bars, no pretending "learnt" means exam-ready.</p>
         <div class="hero-actions">
           <button id="jump-weak" class="hero-action danger" type="button">Show weak skills</button>
           <button id="jump-due" class="hero-action" type="button">Due for revision</button>
@@ -75,17 +75,17 @@
           <option value="">Show all</option>
           <option value="attention">Needs attention</option>
           <option value="due">Due for revision</option>
-          <option value="red">Red · Weak</option>
-          <option value="yellow">Yellow · Inconsistent</option>
-          <option value="green">Green · HSC-ready</option>
-          <option value="blue">Blue · Learning</option>
-          <option value="grey">Grey · Not started</option>
+          <option value="red">Red - Weak</option>
+          <option value="yellow">Yellow - Inconsistent</option>
+          <option value="green">Green - HSC-ready</option>
+          <option value="blue">Blue - Learning</option>
+          <option value="grey">Grey - Not started</option>
         </select></div>
         <button id="clear-mastery-view" class="clear-view" type="button">Reset view</button>
       </div>
 
       <div class="toolbar">
-        <div class="search-wrap"><span class="search-mark">⌕</span><input id="mastery-search" type="search" placeholder="Search syllabus skills…" autocomplete="off"></div>
+        <div class="search-wrap"><span class="search-mark" aria-hidden="true"></span><input id="mastery-search" type="search" placeholder="Search syllabus skills..." autocomplete="off"></div>
       </div>
 
       <div class="status-key" aria-label="Traffic light status key">
@@ -100,6 +100,7 @@
   <script src="../mastery-data-2.js"></script>
   <script src="../mastery-data-3.js"></script>
   <script src="../mastery-data-4.js"></script>
+  <script src="../text-sanitize.js"></script>
   <script src="../mastery.js"></script>
 </body>
 </html>
