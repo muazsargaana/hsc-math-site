@@ -27,11 +27,11 @@ const yearFilter = document.getElementById("year-filter");
 const clearButton = document.getElementById("clear-mastery-view");
 
 const STATUS = {
-  grey: { label: "Not started", short: "Not started" },
-  blue: { label: "Learning / newly learnt", short: "Learning" },
-  red: { label: "Weak / cannot solve reliably", short: "Weak" },
-  yellow: { label: "Understands but inconsistent", short: "Inconsistent" },
-  green: { label: "HSC-ready", short: "HSC-ready" }
+  grey: { label: "Not started", detail: "Not properly learnt or attempted yet." },
+  blue: { label: "Learning", detail: "Newly learnt; still needs guidance or examples." },
+  red: { label: "Weak", detail: "Cannot solve reliably or does not know how to start." },
+  yellow: { label: "Inconsistent", detail: "Understands it, but harder or unfamiliar questions expose gaps." },
+  green: { label: "HSC-ready", detail: "Can solve unfamiliar exam-level questions independently and accurately." }
 };
 
 const state = loadState();
@@ -47,6 +47,18 @@ function getRecord(id) {
   return state[id];
 }
 function today() { return new Date().toISOString().slice(0, 10); }
+function daysSince(dateString) {
+  if (!dateString) return Infinity;
+  const then = new Date(`${dateString}T00:00:00`);
+  return Math.floor((Date.now() - then.getTime()) / 86400000);
+}
+function isDue(rec) {
+  if (!rec.lastRevised) return false;
+  if (rec.status === "green") return daysSince(rec.lastRevised) >= 21;
+  if (rec.status === "yellow") return daysSince(rec.lastRevised) >= 10;
+  if (rec.status === "red") return daysSince(rec.lastRevised) >= 5;
+  return false;
+}
 
 function getInitialTheme() {
   const saved = localStorage.getItem("hsc-maths-theme");
@@ -81,7 +93,9 @@ function matchesSkill(topic, section, skill) {
   const rec = getRecord(skill.skillId);
   if (view.subject && topic.subjectKey !== view.subject) return false;
   if (view.year && String(topic.year) !== view.year) return false;
-  if (view.status && rec.status !== view.status) return false;
+  if (view.status === "attention" && !["red", "yellow"].includes(rec.status)) return false;
+  if (view.status === "due" && !isDue(rec)) return false;
+  if (view.status && !["attention", "due"].includes(view.status) && rec.status !== view.status) return false;
   if (view.query) {
     const haystack = [topic.topicCode, topic.topicName, section.sectionCode, section.sectionName, skill.skillName, rec.notes].join(" ").toLowerCase();
     if (!haystack.includes(view.query.toLowerCase())) return false;
@@ -91,7 +105,10 @@ function matchesSkill(topic, section, skill) {
 
 function filteredTopics() {
   return MASTERY_SYLLABUS.map(topic => {
-    const sections = topic.sections.map(section => ({ ...section, skills: section.skills.filter(skill => matchesSkill(topic, section, skill)) })).filter(section => section.skills.length);
+    const sections = topic.sections.map(section => ({
+      ...section,
+      skills: section.skills.filter(skill => matchesSkill(topic, section, skill))
+    })).filter(section => section.skills.length);
     return { ...topic, sections };
   }).filter(topic => topic.sections.length);
 }
@@ -99,33 +116,43 @@ function allSkillsForTopic(topic) { return topic.sections.flatMap(s => s.skills)
 function summary(skills) {
   const counts = { grey: 0, blue: 0, red: 0, yellow: 0, green: 0 };
   skills.forEach(skill => counts[getRecord(skill.skillId).status]++);
-  return { ...counts, greenPct: skills.length ? Math.round(counts.green / skills.length * 100) : 0, remaining: counts.grey + counts.blue };
+  return {
+    ...counts,
+    greenPct: skills.length ? Math.round(counts.green / skills.length * 100) : 0,
+    remaining: counts.grey + counts.blue + counts.red + counts.yellow
+  };
 }
 
-function createStatusSelect(skill) {
+function setStatus(skill, status) {
   const rec = getRecord(skill.skillId);
-  const select = document.createElement("select");
-  select.className = `skill-status status-${rec.status}`;
-  Object.entries(STATUS).forEach(([value, info]) => {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = info.short;
-    option.selected = rec.status === value;
-    select.appendChild(option);
+  rec.status = status;
+  rec.lastRevised = today();
+  saveState();
+  render();
+}
+
+function createTrafficButtons(skill) {
+  const rec = getRecord(skill.skillId);
+  const wrap = document.createElement("div");
+  wrap.className = "traffic-buttons";
+  Object.entries(STATUS).forEach(([status, info]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `traffic-button ${status}${rec.status === status ? " active" : ""}`;
+    button.title = `${info.label}: ${info.detail}`;
+    button.setAttribute("aria-label", `Set ${skill.skillName} to ${info.label}`);
+    button.setAttribute("aria-pressed", rec.status === status ? "true" : "false");
+    button.innerHTML = `<i></i><span>${info.label}</span>`;
+    button.addEventListener("click", () => setStatus(skill, status));
+    wrap.appendChild(button);
   });
-  select.addEventListener("change", () => {
-    rec.status = select.value;
-    rec.lastRevised = today();
-    saveState();
-    render();
-  });
-  return select;
+  return wrap;
 }
 
 function createSkillRow(skill) {
   const rec = getRecord(skill.skillId);
   const row = document.createElement("div");
-  row.className = "skill-row";
+  row.className = `skill-row skill-${rec.status}`;
 
   const main = document.createElement("div");
   main.className = "skill-main";
@@ -138,13 +165,14 @@ function createSkillRow(skill) {
   name.textContent = skill.skillName;
   const meta = document.createElement("div");
   meta.className = "skill-meta";
-  meta.textContent = rec.lastRevised ? `Revised ${rec.lastRevised}` : "Not revised yet";
+  const dueText = isDue(rec) ? " · Due for revision" : "";
+  meta.textContent = rec.lastRevised ? `${STATUS[rec.status].label} · Revised ${rec.lastRevised}${dueText}` : `${STATUS[rec.status].label} · Not revised yet`;
   textWrap.append(name, meta);
   main.append(dot, textWrap);
 
   const actions = document.createElement("div");
   actions.className = "skill-actions";
-  actions.appendChild(createStatusSelect(skill));
+  actions.appendChild(createTrafficButtons(skill));
   const noteButton = document.createElement("button");
   noteButton.className = "skill-note-button";
   noteButton.type = "button";
@@ -163,15 +191,14 @@ function createSkillRow(skill) {
   exact.append(exactSummary, wording);
   const textarea = document.createElement("textarea");
   textarea.className = "skill-notes";
-  textarea.placeholder = "Quick notes…";
+  textarea.placeholder = "Quick notes: mistakes, question numbers, what to revise…";
   textarea.value = rec.notes;
   textarea.rows = 2;
   textarea.addEventListener("change", () => {
     rec.notes = textarea.value.trim();
     rec.lastRevised = today();
     saveState();
-    noteButton.textContent = rec.notes ? "Notes •" : "Notes";
-    meta.textContent = `Revised ${rec.lastRevised}`;
+    render();
   });
   detail.append(exact, textarea);
   row.appendChild(detail);
@@ -186,6 +213,7 @@ function renderTopic(topic) {
   const panel = document.createElement("section");
   panel.className = "mastery-topic";
   const fullSummary = summary(allSkillsForTopic(topic));
+  const total = allSkillsForTopic(topic).length || 1;
   const header = document.createElement("button");
   header.className = "mastery-topic-header";
   header.type = "button";
@@ -196,9 +224,19 @@ function renderTopic(topic) {
   title.innerHTML = `<span class="topic-code">${topic.topicCode}</span><strong>${topic.topicName}</strong><small>${topic.subjectKey === "ext1" ? "Extension 1" : "Extension 2"} · Year ${topic.year}</small>`;
   const stats = document.createElement("div");
   stats.className = "topic-stats";
-  stats.innerHTML = `<b>${fullSummary.greenPct}%</b><span>green</span><em>${fullSummary.red}R · ${fullSummary.yellow}Y · ${fullSummary.remaining} remaining</em>`;
+  stats.innerHTML = `<b>${fullSummary.greenPct}%</b><span>HSC-ready</span><em>${fullSummary.red} red · ${fullSummary.yellow} yellow · ${fullSummary.blue} learning · ${fullSummary.grey} not started</em>`;
   header.append(arrow, title, stats);
   panel.appendChild(header);
+
+  const progress = document.createElement("div");
+  progress.className = "topic-progress";
+  progress.innerHTML = `
+    <span class="grey" style="--w:${fullSummary.grey / total * 100}%"></span>
+    <span class="blue" style="--w:${fullSummary.blue / total * 100}%"></span>
+    <span class="red" style="--w:${fullSummary.red / total * 100}%"></span>
+    <span class="yellow" style="--w:${fullSummary.yellow / total * 100}%"></span>
+    <span class="green" style="--w:${fullSummary.green / total * 100}%"></span>`;
+  panel.appendChild(progress);
 
   const body = document.createElement("div");
   body.className = "mastery-topic-body";
@@ -224,9 +262,11 @@ function updateOverall() {
   const skills = MASTERY_SYLLABUS.flatMap(allSkillsForTopic);
   const s = summary(skills);
   document.getElementById("overall-green").textContent = `${s.greenPct}%`;
+  document.getElementById("green-count").textContent = `${s.green} skills`;
   document.getElementById("overall-red").textContent = s.red;
   document.getElementById("overall-yellow").textContent = s.yellow;
-  document.getElementById("overall-remaining").textContent = s.remaining;
+  document.getElementById("overall-blue").textContent = s.blue;
+  document.getElementById("overall-grey").textContent = s.grey;
   const ring = document.getElementById("mastery-ring");
   const ringValue = document.getElementById("mastery-ring-value");
   if (ring) ring.style.setProperty("--progress", s.greenPct);
@@ -259,6 +299,24 @@ clearButton.addEventListener("click", () => {
   render();
 });
 
+document.querySelectorAll("[data-status-filter]").forEach(button => {
+  button.addEventListener("click", () => {
+    view.status = button.dataset.statusFilter;
+    document.querySelector(".mastery-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    render();
+  });
+});
+document.getElementById("jump-weak")?.addEventListener("click", () => {
+  view.status = "red";
+  document.querySelector(".mastery-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  render();
+});
+document.getElementById("jump-due")?.addEventListener("click", () => {
+  view.status = "due";
+  document.querySelector(".mastery-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  render();
+});
+
 document.addEventListener("keydown", event => {
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
     event.preventDefault();
@@ -273,18 +331,6 @@ if (glow && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     glow.style.left = `${event.clientX}px`;
     glow.style.top = `${event.clientY}px`;
   }, { passive: true });
-}
-
-if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-  document.querySelectorAll(".tilt-card").forEach(card => {
-    card.addEventListener("pointermove", event => {
-      const rect = card.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width;
-      const y = (event.clientY - rect.top) / rect.height;
-      card.style.transform = `perspective(900px) rotateX(${(0.5-y)*3}deg) rotateY(${(x-0.5)*4}deg)`;
-    });
-    card.addEventListener("pointerleave", () => { card.style.transform = ""; });
-  });
 }
 
 render();
