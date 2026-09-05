@@ -17,86 +17,79 @@
 
   <main class="content-shell">
     <nav class="top-dock" aria-label="Main navigation">
-      <a class="brand" href="/" aria-label="HSC Maths Hub home">
-        <span class="brand-mark">∑</span>
-        <span>HSC Maths</span>
-      </a>
-      <div class="dock-links">
-        <a href="/">Resources</a>
-        <a class="active" href="/mastery/">Mastery</a>
-      </div>
-      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme">
-        <span class="theme-icon" aria-hidden="true"></span>
-        <span class="theme-label">Light</span>
-      </button>
+      <a class="brand" href="/" aria-label="HSC Maths Hub home"><span class="brand-mark">∑</span><span>HSC Maths</span></a>
+      <div class="dock-links"><a href="/">Resources</a><a class="active" href="/mastery/">Mastery</a></div>
+      <button id="theme-toggle" class="theme-toggle" type="button"><span class="theme-icon" aria-hidden="true"></span><span class="theme-label">Light</span></button>
     </nav>
 
     <header class="mastery-hero">
       <div class="hero-copy">
         <div class="eyebrow"><span class="live-dot"></span> SYLLABUS MASTERY SYSTEM</div>
         <h1>Know exactly <span>where you stand.</span></h1>
-        <p class="hero-lead">Track every assessable Extension 1 and Extension 2 skill from first exposure to unfamiliar HSC-level mastery.</p>
+        <p class="hero-lead">Every assessable skill gets one clear state. No vague progress bars, no pretending “learnt” means exam-ready.</p>
+        <div class="hero-actions">
+          <button id="jump-weak" class="hero-action danger" type="button">Show weak skills</button>
+          <button id="jump-due" class="hero-action" type="button">Due for revision</button>
+        </div>
       </div>
       <div class="mastery-ring-card tilt-card">
         <div id="mastery-ring" class="mastery-ring" style="--progress:0">
-          <div class="mastery-ring-inner">
-            <span>HSC READY</span>
-            <strong id="mastery-ring-value">0%</strong>
-            <small>overall mastery</small>
-          </div>
+          <div class="mastery-ring-inner"><span>HSC READY</span><strong id="mastery-ring-value">0%</strong><small>overall mastery</small></div>
         </div>
-        <div class="ring-caption">
-          <span><i class="status-dot green"></i>Green means unfamiliar exam-ready</span>
-        </div>
+        <div class="ring-caption"><span><i class="status-dot green"></i>Green only when you can solve unfamiliar HSC-level questions independently</span></div>
       </div>
     </header>
 
+    <section class="status-system" aria-labelledby="status-system-title">
+      <div class="status-system-heading">
+        <div><span class="section-kicker">YOUR FIVE STATES</span><h2 id="status-system-title">Traffic lights that actually mean something.</h2></div>
+        <p>Use the same rule every time. The colour should describe what you can do under exam conditions, not how familiar the topic feels.</p>
+      </div>
+      <div class="status-definition-grid">
+        <button class="status-definition grey" data-status-filter="grey" type="button"><span class="status-number">01</span><i class="status-light"></i><strong>Not started</strong><small>You have not properly learnt or attempted this skill yet.</small></button>
+        <button class="status-definition blue" data-status-filter="blue" type="button"><span class="status-number">02</span><i class="status-light"></i><strong>Learning</strong><small>Newly learnt. You are still building the method and need guidance or examples.</small></button>
+        <button class="status-definition red" data-status-filter="red" type="button"><span class="status-number">03</span><i class="status-light"></i><strong>Weak</strong><small>You cannot solve this reliably. Errors are frequent or you do not know how to start.</small></button>
+        <button class="status-definition yellow" data-status-filter="yellow" type="button"><span class="status-number">04</span><i class="status-light"></i><strong>Inconsistent</strong><small>You understand it, but harder or unfamiliar questions still expose gaps.</small></button>
+        <button class="status-definition green" data-status-filter="green" type="button"><span class="status-number">05</span><i class="status-light"></i><strong>HSC-ready</strong><small>You can independently solve unfamiliar exam-level questions accurately.</small></button>
+      </div>
+    </section>
+
     <section class="mastery-overview" aria-label="Overall mastery summary">
-      <div class="overview-card overview-green"><span class="overview-label">HSC-ready</span><strong id="overall-green">0%</strong><small>mastered skills</small></div>
-      <div class="overview-card overview-red"><span class="overview-label">Weak</span><strong id="overall-red">0</strong><small>needs attention</small></div>
+      <div class="overview-card overview-green"><span class="overview-label">HSC-ready</span><strong id="overall-green">0%</strong><small id="green-count">0 skills</small></div>
+      <div class="overview-card overview-red"><span class="overview-label">Weak</span><strong id="overall-red">0</strong><small>needs attention now</small></div>
       <div class="overview-card overview-yellow"><span class="overview-label">Inconsistent</span><strong id="overall-yellow">0</strong><small>needs harder practice</small></div>
-      <div class="overview-card overview-neutral"><span class="overview-label">Remaining</span><strong id="overall-remaining">0</strong><small>not secure yet</small></div>
+      <div class="overview-card overview-blue"><span class="overview-label">Learning</span><strong id="overall-blue">0</strong><small>newly learnt</small></div>
+      <div class="overview-card overview-neutral"><span class="overview-label">Not started</span><strong id="overall-grey">0</strong><small>still untouched</small></div>
     </section>
 
     <section class="mastery-workspace">
       <div class="workspace-heading">
-        <div>
-          <span class="section-kicker">MASTERY INDEX</span>
-          <h2>Every skill. One status.</h2>
-        </div>
+        <div><span class="section-kicker">MASTERY INDEX</span><h2>Every skill. One status.</h2></div>
         <span id="mastery-result-count" class="result-count"></span>
       </div>
 
       <div class="control-bar mastery-controls">
         <div class="quick-filter"><span class="control-label">Course</span><div id="subject-filter" class="segmented"></div></div>
         <div class="quick-filter"><span class="control-label">Year</span><div id="year-filter" class="segmented"></div></div>
-        <div class="quick-filter">
-          <span class="control-label">Status</span>
-          <select id="status-filter">
-            <option value="">Show all</option>
-            <option value="red">Red · Weak</option>
-            <option value="yellow">Yellow · Inconsistent</option>
-            <option value="green">Green · HSC-ready</option>
-            <option value="blue">Blue · Learning</option>
-            <option value="grey">Grey · Not started</option>
-          </select>
-        </div>
+        <div class="quick-filter"><span class="control-label">Status</span><select id="status-filter">
+          <option value="">Show all</option>
+          <option value="attention">Needs attention</option>
+          <option value="due">Due for revision</option>
+          <option value="red">Red · Weak</option>
+          <option value="yellow">Yellow · Inconsistent</option>
+          <option value="green">Green · HSC-ready</option>
+          <option value="blue">Blue · Learning</option>
+          <option value="grey">Grey · Not started</option>
+        </select></div>
         <button id="clear-mastery-view" class="clear-view" type="button">Reset view</button>
       </div>
 
       <div class="toolbar">
-        <div class="search-wrap">
-          <span class="search-mark">⌕</span>
-          <input id="mastery-search" type="search" placeholder="Search syllabus skills…" autocomplete="off">
-        </div>
+        <div class="search-wrap"><span class="search-mark">⌕</span><input id="mastery-search" type="search" placeholder="Search syllabus skills…" autocomplete="off"></div>
       </div>
 
       <div class="status-key" aria-label="Traffic light status key">
-        <span><i class="status-dot grey"></i>Not started</span>
-        <span><i class="status-dot blue"></i>Learning</span>
-        <span><i class="status-dot red"></i>Weak</span>
-        <span><i class="status-dot yellow"></i>Inconsistent</span>
-        <span><i class="status-dot green"></i>HSC-ready</span>
+        <span><i class="status-dot grey"></i>Not started</span><span><i class="status-dot blue"></i>Learning</span><span><i class="status-dot red"></i>Weak</span><span><i class="status-dot yellow"></i>Inconsistent</span><span><i class="status-dot green"></i>HSC-ready</span>
       </div>
 
       <div id="mastery-tree"></div>
