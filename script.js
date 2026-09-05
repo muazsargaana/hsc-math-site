@@ -171,12 +171,12 @@ function renderControls() {
   renderSegmented(courseFilter, COURSE_OPTIONS, viewState.course, value => {
     viewState.course = value;
     viewState.source = "";
-    applyView();
+    applyView({ preserveScroll: true });
   });
   renderSegmented(typeFilter, TYPE_OPTIONS, viewState.type, value => {
     viewState.type = value;
     viewState.source = "";
-    applyView();
+    applyView({ preserveScroll: true });
   });
 
   const sources = sourceOptionsForCurrentView();
@@ -207,7 +207,7 @@ function renderControls() {
 
 sourceFilter.addEventListener("change", () => {
   viewState.source = sourceFilter.value;
-  applyView();
+  applyView({ preserveScroll: true });
 });
 
 clearViewButton.addEventListener("click", () => {
@@ -215,7 +215,7 @@ clearViewButton.addEventListener("click", () => {
   viewState.type = "";
   viewState.source = "";
   searchInput.value = "";
-  applyView();
+  applyView({ preserveScroll: true });
 });
 
 function cloneForView(node, context = {}) {
@@ -274,9 +274,6 @@ function createNode(node, depth = 0, path = []) {
   title.type = "button";
   title.className = "folder-title";
 
-  // Expand the hierarchy only as far as the user's current selection makes useful.
-  // Course selected -> open course. Resource type selected -> open course + category.
-  // Source selected -> open course + category + source.
   const autoOpen = Boolean(
     (depth === 0 && (viewState.course || viewState.type || viewState.source)) ||
     (depth === 1 && (viewState.type || viewState.source)) ||
@@ -376,10 +373,27 @@ function applySearch() {
   resultCount.textContent = `${visibleFiles} matches`;
 }
 
-function applyView() {
+function applyView({ preserveScroll = false } = {}) {
+  const workspace = document.querySelector(".resource-workspace");
+  const oldScrollY = window.scrollY;
+  const oldMinHeight = workspace?.style.minHeight || "";
+
+  if (preserveScroll && workspace) {
+    workspace.style.minHeight = `${workspace.offsetHeight}px`;
+  }
+
   renderTree();
   renderControls();
   if (searchInput.value.trim()) applySearch();
+
+  if (preserveScroll) {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: oldScrollY, left: 0, behavior: "auto" });
+      requestAnimationFrame(() => {
+        if (workspace) workspace.style.minHeight = oldMinHeight;
+      });
+    });
+  }
 }
 
 searchInput.addEventListener("input", () => {
