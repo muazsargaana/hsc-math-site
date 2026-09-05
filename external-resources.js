@@ -74,16 +74,16 @@ const externalResources = [
       {
         name: "Q's By Topic",
         children: [
-          {
-            type: "folder",
-            name: "Preliminary Extension 1",
-            children: [
-              { type: "file", name: "100 Questions", url: "https://drive.google.com/file/d/1CK6ELep6XKWJ89fMQzbuJYaFBArpyUVW/view" },
-              { type: "file", name: "Binomial Theorem Past HSC Questions", url: "https://drive.google.com/file/d/1uz1l5UsPaJ78vFN__ZxlkmVwUXmj_CWa/view" },
-              { type: "file", name: "Permutations and Combinations Ext 1 · Arnold", url: "https://drive.google.com/file/d/1tCgFmtG39lLolfOxBCa9HxO2zQzTt2eA/view" },
-              { type: "file", name: "Permutations and Combinations Quiz · Solutions", url: "https://drive.google.com/file/d/1__jwexn84RzIiU0IPqZxBAEBXbpC-qTP/view" }
-            ]
-          }
+          { type: "file", name: "100 Questions", url: "https://drive.google.com/file/d/1CK6ELep6XKWJ89fMQzbuJYaFBArpyUVW/view" },
+          { type: "file", name: "Binomial Theorem Past HSC Questions", url: "https://drive.google.com/file/d/1uz1l5UsPaJ78vFN__ZxlkmVwUXmj_CWa/view" },
+          { type: "file", name: "Permutations and Combinations · Arnold", url: "https://drive.google.com/file/d/1tCgFmtG39lLolfOxBCa9HxO2zQzTt2eA/view" },
+          { type: "file", name: "Permutations and Combinations Quiz · Solutions", url: "https://drive.google.com/file/d/1__jwexn84RzIiU0IPqZxBAEBXbpC-qTP/view" }
+        ]
+      },
+      {
+        name: "Notes",
+        children: [
+          { type: "file", name: "Year 11 Extension 1 Notes", url: "https://drive.google.com/file/d/1QjhebDdgbqnEyjQocVUyr4mKpq4lzBXo/view" }
         ]
       },
       {
@@ -117,18 +117,6 @@ const externalResources = [
   {
     course: "Mathematics Extension 1",
     categories: [
-      {
-        name: "Notes",
-        children: [
-          {
-            type: "folder",
-            name: "Extension 1",
-            children: [
-              { type: "file", name: "Extension 1 Notes", url: "https://drive.google.com/file/d/1QjhebDdgbqnEyjQocVUyr4mKpq4lzBXo/view" }
-            ]
-          }
-        ]
-      },
       {
         name: "Textbooks",
         children: [
@@ -225,15 +213,9 @@ const externalResources = [
       {
         name: "Textbook Libraries",
         children: [
-          {
-            type: "folder",
-            name: "Libraries",
-            children: [
-              { type: "file", name: "Year 11 Textbook Library", url: "https://drive.google.com/drive/folders/1-RKIkBrxDjzOibY6dR6OBHv8kq4_pM63" },
-              { type: "file", name: "Year 12 Textbook Library", url: "https://drive.google.com/drive/folders/1uvKl6Ju-8PaBPKsHaTBZgaPrZOmOfKyg" },
-              { type: "file", name: "SchoolTextbooks · MediaFire", url: "https://www.mediafire.com/folder/0zir01vwtaxh9/SchoolTextbooks#0zir01vwtaxh9" }
-            ]
-          }
+          { type: "file", name: "Year 11 Textbook Library", url: "https://drive.google.com/drive/folders/1-RKIkBrxDjzOibY6dR6OBHv8kq4_pM63" },
+          { type: "file", name: "Year 12 Textbook Library", url: "https://drive.google.com/drive/folders/1uvKl6Ju-8PaBPKsHaTBZgaPrZOmOfKyg" },
+          { type: "file", name: "SchoolTextbooks · MediaFire", url: "https://www.mediafire.com/folder/0zir01vwtaxh9/SchoolTextbooks#0zir01vwtaxh9" }
         ]
       }
     ]
