@@ -17,7 +17,7 @@
   <main class="content-shell">
     <nav class="top-dock" aria-label="Main navigation">
       <a class="brand" href="/"><img class="brand-logo" src="../favicon.svg" alt=""><span>HSC Maths</span></a>
-      <div class="dock-links"><a href="/">Resources</a><a href="/mastery/">Mastery</a><a class="active" href="/performance/">Performance</a><a href="/profile/">Profile</a></div>
+      <div class="dock-links"><a href="/">Resources</a><a href="/mastery/">Mastery</a><a class="active" href="/performance/">Performance</a><a href="/profile/">Account</a></div>
       <button id="theme-toggle" class="theme-toggle" type="button"><span class="theme-icon"></span><span class="theme-label">Light</span></button>
     </nav>
 
@@ -53,7 +53,7 @@
       <div class="rank-grid">
         <section class="performance-card predictor-card">
           <div class="rank-fields">
-            <label class="school-field"><span>Your school</span><small>Start typing and choose a match. Your Profile school is used automatically.</small><div class="school-input-wrap"><input id="school-name" type="text" placeholder="Start typing your school..." autocomplete="off"></div></label>
+            <label class="school-field"><span>Your school</span><small>Start typing and choose a match. Your Account school is used automatically.</small><div class="school-input-wrap"><input id="school-name" type="text" placeholder="Start typing your school..." autocomplete="off"></div></label>
             <label><span>Current HSC rank</span><small>1 = first in the course.</small><input id="current-rank" type="number" min="1" step="1" placeholder="e.g. 30"></label>
             <label><span>Cohort size</span><small>Total students at your school doing this course.</small><input id="cohort-size" type="number" min="2" step="1" placeholder="e.g. 60"></label>
             <label><span>Reference year</span><small>Most recent completed HSC year is best.</small><select id="reference-year"><option>2025</option><option>2024</option><option>2023</option><option>2022</option></select></label>
@@ -72,6 +72,6 @@
       <div class="source-row"><a href="https://educationstandards.nsw.edu.au/wps/portal/nesa/11-12/Understanding-the-curriculum/assessment/assessment-in-practice/purpose-of-assessment/" target="_blank" rel="noopener noreferrer">NESA moderation</a><a href="https://www.hscninja.com/atar-calculator" target="_blank" rel="noopener noreferrer">HSCninja</a><a href="https://www.nsw.gov.au/education-and-training/nesa/hsc/facts-and-figures/glossary" target="_blank" rel="noopener noreferrer">NESA bands</a></div>
     </section>
   </main>
-  <script src="../school-autocomplete.js"></script><script src="../performance.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../auth-client.js"></script><script src="../cloud-sync.js"></script><script src="../school-autocomplete.js"></script><script src="../performance.js"></script>
 </body>
 </html>
