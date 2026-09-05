@@ -2,7 +2,6 @@
   function texify(input){
     let s=String(input??'').trim();
     if(!s)return '';
-
     s=s
       .replace(/integral\s+([^,;.]+?)\s+d([a-zA-Z])/gi,'\\int $1\\,d$2')
       .replace(/sqrt\(([^()]*)\)/g,'\\sqrt{$1}')
@@ -43,8 +42,6 @@
       .replace(/([A-Za-z0-9)])\^(-?\d+|n|r)/g,'$1^{$2}')
       .replace(/_\(([^()]*)\)/g,'_{$1}')
       .replace(/_([A-Za-z0-9]+)/g,'_{$1}');
-
-    // Turn simple absolute-value pairs into scalable delimiters.
     s=s.replace(/\|([^|]+)\|/g,'\\left|$1\\right|');
     return s;
   }
@@ -72,14 +69,14 @@
       let m;
       while((m=pattern.exec(text))){
         const start=m.index,end=start+m[0].length;
-        if(end>start)ranges.push({start,end,text:m[0]});
+        if(end>start)ranges.push({start,end});
         if(pattern.lastIndex===m.index)pattern.lastIndex++;
       }
     }
     ranges.sort((a,b)=>a.start-b.start||(b.end-b.start)-(a.end-a.start));
     const merged=[];
     for(const r of ranges){
-      if(!merged.length||r.start>=merged[merged.length-1].end)merged.push(r);
+      if(!merged.length||r.start>=merged[merged.length-1].end)merged.push({...r});
       else if(r.end>merged[merged.length-1].end)merged[merged.length-1].end=r.end;
     }
     return merged;
@@ -100,7 +97,7 @@
     const value=String(text??'');
     const ranges=rangesFor(value);
     el.replaceChildren();
-    if(!ranges.length){el.textContent=value;return;}
+    if(!ranges.length){el.textContent=value;el.dataset.mathRendered='1';return;}
     let pos=0;
     for(const r of ranges){
       if(r.start>pos)el.append(document.createTextNode(value.slice(pos,r.start)));
@@ -109,12 +106,32 @@
       el.append(span);pos=r.end;
     }
     if(pos<value.length)el.append(document.createTextNode(value.slice(pos)));
+    el.dataset.mathRendered='1';
   }
 
   function renderDataTex(root=document){
-    root.querySelectorAll?.('[data-tex]').forEach(el=>renderTex(el,el.dataset.tex||'',el.dataset.display==='true'));
+    root.querySelectorAll?.('[data-tex]:not([data-math-rendered])').forEach(el=>{renderTex(el,el.dataset.tex||'',el.dataset.display==='true');el.dataset.mathRendered='1';});
   }
 
-  window.HSCMath={texify,renderExpression,renderRichText,renderDataTex};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>renderDataTex());else renderDataTex();
+  function enhance(root=document){
+    renderDataTex(root);
+    root.querySelectorAll?.('.skill-name:not([data-math-rendered]),.nesa-detail p:not([data-math-rendered])').forEach(el=>renderRichText(el,el.textContent));
+  }
+
+  function start(){
+    enhance(document);
+    const observer=new MutationObserver(records=>{
+      for(const record of records){
+        for(const node of record.addedNodes){
+          if(node.nodeType!==1)continue;
+          if(node.matches?.('.skill-name:not([data-math-rendered]),.nesa-detail p:not([data-math-rendered])'))renderRichText(node,node.textContent);
+          enhance(node);
+        }
+      }
+    });
+    observer.observe(document.body,{childList:true,subtree:true});
+  }
+
+  window.HSCMath={texify,renderExpression,renderRichText,renderDataTex,enhance};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
