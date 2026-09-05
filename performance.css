@@ -1,0 +1,20 @@
+/* Performance layer: keep the visual language, remove expensive continuous paint work. */
+.page-noise{display:none!important}
+.aurora{filter:none!important;opacity:.16!important;animation:none!important;background:radial-gradient(circle at center,color-mix(in srgb,var(--violet) 28%,transparent),transparent 68%)!important}
+.aurora-b{background:radial-gradient(circle at center,color-mix(in srgb,var(--cyan) 24%,transparent),transparent 70%)!important}
+.cursor-glow{width:420px!important;height:420px!important;transition:none!important;will-change:transform!important;left:0!important;top:0!important;opacity:.65}
+.top-dock,.resource-workspace,.mastery-workspace,.math-stage,.mastery-ring-card,.formula{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.math-stage,.launch-card,.course-folder,.mastery-topic,.overview-card,.status-definition{contain:layout paint style}
+.course-folder,.mastery-topic{content-visibility:auto;contain-intrinsic-size:160px}
+.children{content-visibility:auto}
+.stage-ring{will-change:transform}
+.launch-card,.course-folder,.mastery-topic,.skill-row,.file-link,.segment-button,.traffic-button{transition-duration:.14s!important}
+@media (hover:none),(pointer:coarse),(max-width:800px){
+  .cursor-glow{display:none!important}
+  .aurora{opacity:.1!important}
+  .stage-ring,.formula,.live-dot{animation:none!important}
+  .tilt-card{transform:none!important}
+}
+@media (prefers-reduced-motion:reduce){
+  .cursor-glow,.aurora{display:none!important}
+}
