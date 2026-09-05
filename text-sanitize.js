@@ -5,31 +5,38 @@
     "Π": "Pi", "Θ": "Theta", "Ω": "Omega", "Σ": "Sigma"
   };
 
+  const symbolMap = [
+    [/≤/g, "<="], [/≥/g, ">="], [/≠/g, "!="], [/≈/g, "~"], [/±/g, "+/-"],
+    [/×/g, "x"], [/÷/g, "/"], [/√/g, "sqrt "], [/∞/g, "infinity"], [/∈/g, " in "],
+    [/∴/g, "therefore"], [/∫/g, "integral "], [/→/g, "->"], [/−/g, "-"],
+    [/²/g, "^2"], [/³/g, "^3"], [/⁻¹/g, "^-1"], [/·/g, " dot "],
+    [/[“”]/g, '"'], [/[‘’]/g, "'"], [/[–—]/g, "-"], [/⋯/g, "..."]
+  ];
+
   function cleanMathText(value) {
     let text = String(value ?? "");
 
-    // Fix known PDF-extraction corruption before Unicode normalization.
+    // Repair the specific glyph corruption produced by the syllabus PDF extraction.
     text = text
       .replace(/ଵ\s*௙\s*\(௫\)/g, "1/f(x)")
       .replace(/ඥ\s*𝑓\s*\(𝑥\)/g, "sqrt(f(x))")
       .replace(/−\s*గ\s*ଶ/g, "-pi/2")
       .replace(/గ\s*ଶ/g, "pi/2")
       .replace(/−\s*஠\s*ଶ/g, "-pi/2")
-      .replace(/஠\s*ଶ/g, "pi/2")
-      .replace(/([A-Za-z𝑎-𝑧𝐴-𝑍])௡/g, "$1_n")
-      .replace(/([A-Za-z𝑎-𝑧𝐴-𝑍])ିଵ/g, "$1^-1")
-      .replace(/([A-Za-z𝑎-𝑧𝐴-𝑍])ଶ/g, "$1^2")
-      .replace(/²/g, "^2")
-      .replace(/³/g, "^3")
-      .replace(/⁻¹/g, "^-1");
+      .replace(/஠\s*ଶ/g, "pi/2");
 
-    // Convert mathematical italic/bold Unicode letters to ordinary text.
+    // Convert mathematical styled letters/numbers and compatibility glyphs to plain text.
     text = text.normalize("NFKC");
 
     Object.entries(greek).forEach(([symbol, word]) => {
       text = text.split(symbol).join(word);
     });
 
+    symbolMap.forEach(([pattern, replacement]) => {
+      text = text.replace(pattern, replacement);
+    });
+
+    // Common remnants from the PDF's embedded maths font mappings.
     text = text
       .replace(/ඥ/g, "sqrt ")
       .replace(/௫/g, "x")
@@ -37,30 +44,13 @@
       .replace(/ଵ/g, "1")
       .replace(/ଶ/g, "2")
       .replace(/଴/g, "0")
-      .replace(/ି/g, "-")
-      .replace(/≤/g, "<=")
-      .replace(/≥/g, ">=")
-      .replace(/≠/g, "!=")
-      .replace(/≈/g, "~")
-      .replace(/±/g, "+/-")
-      .replace(/×/g, "x")
-      .replace(/÷/g, "/")
-      .replace(/√/g, "sqrt ")
-      .replace(/∞/g, "infinity")
-      .replace(/∈/g, " in ")
-      .replace(/∴/g, "therefore")
-      .replace(/∫/g, "integral ")
-      .replace(/→/g, "->")
-      .replace(/−/g, "-")
-      .replace(/[“”]/g, '"')
-      .replace(/[‘’]/g, "'")
-      .replace(/[–—]/g, "-")
-      .replace(/⋯/g, "...");
+      .replace(/ି/g, "-");
 
-    // Remove any leftover Indic/Sinhala PDF glyphs rather than showing alien characters.
-    text = text.replace(/[\u0B00-\u0B7F\u0B80-\u0BFF\u0C00-\u0C7F\u0D80-\u0DFF]/g, "");
+    // Absolute safety net: mastery labels are intentionally ASCII-only.
+    // Anything still outside printable ASCII at this point is extraction garbage,
+    // not information we should show to the user.
+    text = text.replace(/[^\x20-\x7E]/g, "");
 
-    // Remove replacement characters and control garbage, then tidy spacing.
     text = text
       .replace(/\uFFFD/g, "")
       .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
