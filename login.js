@@ -11,12 +11,13 @@ const nameInput=document.getElementById('auth-name');
 const submit=document.getElementById('auth-submit');
 const forgot=document.getElementById('forgot-password');
 const message=document.getElementById('auth-message');
-let mode=new URLSearchParams(location.search).get('recovery')==='1'?'recovery':'signin';
+const params=new URLSearchParams(location.search);
+let mode=params.get('recovery')==='1'?'recovery':params.get('mode')==='signup'?'signup':'signin';
 
 function setMessage(text,type=''){message.textContent=text;message.className=`auth-message ${type}`.trim();}
 function setMode(next){mode=next;tabs.forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));nameField.hidden=mode!=='signup';confirmField.hidden=!['signup','recovery'].includes(mode);forgot.hidden=mode!=='signin';password.autocomplete=mode==='signin'?'current-password':'new-password';
-  if(mode==='signin'){title.textContent='Sign in';subtitle.textContent='Use your account to keep your school, mastery and assessment data synced.';submit.textContent='Sign in';}
-  if(mode==='signup'){title.textContent='Create account';subtitle.textContent='Create one account for your school profile, mastery and assessments.';submit.textContent='Create account';}
+  if(mode==='signin'){title.textContent='Sign in';subtitle.textContent='Use your account to keep your school, mastery and assessment data synced.';submit.textContent='Sign in';document.getElementById('auth-tabs').hidden=false;}
+  if(mode==='signup'){title.textContent='Create account';subtitle.textContent='Create one account for your school profile, mastery and assessments.';submit.textContent='Create account';document.getElementById('auth-tabs').hidden=false;}
   if(mode==='recovery'){title.textContent='Set new password';subtitle.textContent='Choose a new password for your account.';submit.textContent='Update password';document.getElementById('auth-tabs').hidden=true;}
   setMessage('');
 }
