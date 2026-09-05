@@ -59,12 +59,12 @@ button, input, select { font: inherit; }
 
 .content-shell {
   width: min(1210px, 90vw);
-  margin: 38px auto 78px;
+  margin: 50px auto 78px;
 }
 
 .page-header {
-  margin-bottom: 23px;
-  padding-bottom: 19px;
+  margin-bottom: 29px;
+  padding-bottom: 25px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -84,7 +84,7 @@ h1 {
 }
 
 .subtitle {
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   color: var(--muted);
   font-size: 14px;
   font-weight: 400;
@@ -96,7 +96,7 @@ h1 {
   align-items: center;
   gap: 8px;
   flex: 0 0 auto;
-  margin-top: 3px;
+  margin-top: 6px;
   padding: 7px 10px;
   color: var(--muted);
   background: var(--surface);
@@ -161,9 +161,10 @@ h1 {
 
 @media (max-width: 1000px) { .content-shell { width: 92%; } }
 @media (max-width: 700px) {
-  .content-shell { width: 94%; margin-top: 26px; }
+  .content-shell { width: 94%; margin-top: 30px; }
   .header-row { gap: 14px; }
   h1 { font-size: 34px; }
+  .subtitle { margin-top: 13px; }
   .theme-label { display: none; }
   .theme-toggle { padding: 8px; }
   .control-bar { gap: 12px; padding: 12px; }
