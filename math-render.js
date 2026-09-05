@@ -29,7 +29,10 @@
       .replace(/\balpha\b/g,'\\alpha')
       .replace(/\bbeta\b/g,'\\beta')
       .replace(/\bgamma\b/g,'\\gamma')
+      .replace(/\bdelta\b/g,'\\delta')
       .replace(/\blambda\b/g,'\\lambda')
+      .replace(/\bmu\b/g,'\\mu')
+      .replace(/\bsigma\b/g,'\\sigma')
       .replace(/\bomega\b/g,'\\omega')
       .replace(/\bsin\b/g,'\\sin')
       .replace(/\bcos\b/g,'\\cos')
@@ -47,27 +50,26 @@
   }
 
   const patterns=[
+    /\b(?:d\^2[A-Za-z]\/d[A-Za-z]\^2|d2[A-Za-z]\/d[A-Za-z]2|d[A-Za-z]\/d[A-Za-z])\s*=\s*[^,;.]+?(?=\s+(?:where|when|for|to|and|or|given)\b|[,;.]|$)/g,
     /\b(?:E|Var|P)\([^)]+\)\s*=\s*[^,;.]+?(?=\s+(?:where|when|for|to|and)\b|[,;.]|$)/gi,
     /\bX\s*~\s*Bin\([^)]+\)/g,
     /\b(?:d\^2[A-Za-z]\/d[A-Za-z]\^2|d2[A-Za-z]\/d[A-Za-z]2|d[A-Za-z]\/d[A-Za-z])\b/g,
     /\b[A-Za-z](?:\([^)]*\))?(?:\^\(?[-A-Za-z0-9+]+\)?)?\s*(?:=|<=|>=|!=|<|>|~)\s*[^,;.]+?(?=\s+(?:where|when|for|to|and|or)\b|[,;.]|$)/g,
     /\b[A-Za-z]\s+dot\s+[A-Za-z]\s*=\s*[^,;.]+?(?=\s+(?:where|when|for|to|and|or)\b|[,;.]|$)/gi,
-    /\b(?:arcsin|arccos|arctan|sin|cos|tan)(?:\^-?1)?\s*(?:\([^)]*\)|[A-Za-z0-9]+)(?:\s*(?:=|<=|>=|<|>)\s*[^,;.]+?)?(?=\s+(?:where|when|for|to|and|or)\b|[,;.]|$)/gi,
+    /\b(?:arcsin|arccos|arctan|sin|cos|tan)(?:\^-?\d+)?\s*(?:\([^)]*\)|[A-Za-z0-9]+)(?:\s*(?:=|<=|>=|<|>)\s*[^,;.]+?)?(?=\s+(?:where|when|for|to|and|or)\b|[,;.]|$)/gi,
     /sqrt\([^)]*\)/gi,
     /\|[^|]+\|(?:\^2)?/g,
     /\b(?:nCr|nPr)\b/g,
     /\b(?:E|Var|P|Arg|arg|Re|Im)\([^)]+\)/g,
     /\be\^\([^)]*\)/g,
     /\b[A-Za-z0-9]+\^\(?[-A-Za-z0-9+]+\)?/g,
-    /\bpi\/2\b/gi
+    /(?:\(|\[)-?pi(?:\/\d+)?\s*,\s*-?pi(?:\/\d+)?(?:\]|\))/gi,
+    /\b(?:pi|theta|alpha|beta|gamma|delta|lambda|mu|sigma|omega)(?:\/\d+)?\b/gi
   ];
 
   function rangesFor(text){
     const ranges=[];
-    for(const pattern of patterns){
-      pattern.lastIndex=0;let m;
-      while((m=pattern.exec(text))){const start=m.index,end=start+m[0].length;if(end>start)ranges.push({start,end});if(pattern.lastIndex===m.index)pattern.lastIndex++;}
-    }
+    for(const pattern of patterns){pattern.lastIndex=0;let m;while((m=pattern.exec(text))){const start=m.index,end=start+m[0].length;if(end>start)ranges.push({start,end});if(pattern.lastIndex===m.index)pattern.lastIndex++;}}
     ranges.sort((a,b)=>a.start-b.start||(b.end-b.start)-(a.end-a.start));
     const merged=[];
     for(const r of ranges){if(!merged.length||r.start>=merged[merged.length-1].end)merged.push({...r});else if(r.end>merged[merged.length-1].end)merged[merged.length-1].end=r.end;}
@@ -84,16 +86,8 @@
     if(pos<value.length)el.append(document.createTextNode(value.slice(pos)));el.dataset.mathRendered='1';
   }
   function renderDataTex(root=document){root.querySelectorAll?.('[data-tex]:not([data-math-rendered])').forEach(el=>{renderTex(el,el.dataset.tex||'',el.dataset.display==='true');el.dataset.mathRendered='1';});}
-  function enhance(root=document){
-    renderDataTex(root);
-    root.querySelectorAll?.('.skill-name:not([data-math-rendered]),.nesa-detail p:not([data-math-rendered])').forEach(el=>renderRichText(el,el.textContent));
-    root.querySelectorAll?.('.nesa-detail summary').forEach(el=>{if(el.textContent==='View NESA wording')el.textContent='View syllabus wording';});
-  }
-  function start(){
-    enhance(document);
-    const observer=new MutationObserver(records=>{for(const record of records){for(const node of record.addedNodes){if(node.nodeType!==1)continue;if(node.matches?.('.skill-name:not([data-math-rendered]),.nesa-detail p:not([data-math-rendered])'))renderRichText(node,node.textContent);enhance(node);}}});
-    observer.observe(document.body,{childList:true,subtree:true});
-  }
+  function enhance(root=document){renderDataTex(root);root.querySelectorAll?.('.skill-name:not([data-math-rendered]),.nesa-detail p:not([data-math-rendered])').forEach(el=>renderRichText(el,el.textContent));root.querySelectorAll?.('.nesa-detail summary').forEach(el=>{if(el.textContent==='View NESA wording')el.textContent='View syllabus wording';});}
+  function start(){enhance(document);const observer=new MutationObserver(records=>{for(const record of records){for(const node of record.addedNodes){if(node.nodeType!==1)continue;if(node.matches?.('.skill-name:not([data-math-rendered]),.nesa-detail p:not([data-math-rendered])'))renderRichText(node,node.textContent);enhance(node);}}});observer.observe(document.body,{childList:true,subtree:true});}
   window.HSCMath={texify,renderExpression,renderRichText,renderDataTex,enhance};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
