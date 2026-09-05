@@ -3,6 +3,10 @@ const searchInput = document.getElementById("search");
 const filterGroups = document.getElementById("filter-groups");
 const resetFiltersButton = document.getElementById("reset-filters");
 const resultCount = document.getElementById("result-count");
+const collapseFiltersButton = document.getElementById("collapse-filters");
+const showFiltersButton = document.getElementById("show-filters");
+const pageShell = document.querySelector(".page-shell");
+const activeFilterCount = document.getElementById("active-filter-count");
 
 const MAIN_CATEGORY_ORDER = [
   "Organisation Trial Papers",
@@ -45,6 +49,7 @@ const FILTER_SECTIONS = [
 ];
 
 const filterState = {};
+const filterDefaults = {};
 
 function naturalCompare(a, b) {
   return a.localeCompare(b, undefined, {
@@ -101,10 +106,10 @@ function getCategorySources(categoryName) {
   });
 
   if (categoryName === "Organisation Trial Papers") {
-    const preferred = unique([
+    const preferred = [
       ...TRIAL_ORDER["Mathematics Extension 1"],
       ...TRIAL_ORDER["Mathematics Extension 2"]
-    ]);
+    ].filter((name, index, arr) => arr.indexOf(name) === index);
 
     return unique(values).sort((a, b) => {
       const ai = preferred.indexOf(a);
@@ -119,16 +124,20 @@ function getCategorySources(categoryName) {
 }
 
 function initialiseFilterState() {
-  filterState.courses = new Set(resources.map(course => course.name));
-  filterState.categories = new Set(MAIN_CATEGORY_ORDER);
-  filterState.trials = new Set(getCategorySources("Organisation Trial Papers"));
-  filterState.internals = new Set(getCategorySources("Internal Assessments"));
-  filterState.topics = new Set(getCategorySources("Q's By Topic"));
+  filterDefaults.courses = resources.map(course => course.name);
+  filterDefaults.categories = [...MAIN_CATEGORY_ORDER];
+  filterDefaults.trials = getCategorySources("Organisation Trial Papers");
+  filterDefaults.internals = getCategorySources("Internal Assessments");
+  filterDefaults.topics = getCategorySources("Q's By Topic");
+
+  Object.entries(filterDefaults).forEach(([key, values]) => {
+    filterState[key] = new Set(values);
+  });
 }
 
 function shortCourseName(name) {
-  return name === "Mathematics Extension 1" ? "Extension 1 (3U)" :
-         name === "Mathematics Extension 2" ? "Extension 2 (4U)" : name;
+  return name === "Mathematics Extension 1" ? "Extension 1 · 3U" :
+         name === "Mathematics Extension 2" ? "Extension 2 · 4U" : name;
 }
 
 function optionsForSection(section) {
@@ -141,6 +150,22 @@ function optionsForSection(section) {
   }
 
   return getCategorySources(section.category).map(name => ({ value: name, label: name }));
+}
+
+function countActiveRestrictions() {
+  let count = 0;
+
+  Object.entries(filterDefaults).forEach(([key, defaults]) => {
+    if (filterState[key].size !== defaults.length) count += 1;
+  });
+
+  return count;
+}
+
+function updateActiveFilterCount() {
+  const count = countActiveRestrictions();
+  activeFilterCount.textContent = count ? String(count) : "";
+  activeFilterCount.style.display = count ? "inline-block" : "none";
 }
 
 function renderFilters() {
@@ -162,7 +187,7 @@ function renderFilters() {
     const allButton = document.createElement("button");
     allButton.type = "button";
     allButton.className = "mini-button";
-    allButton.textContent = "All";
+    allButton.textContent = "all";
     allButton.addEventListener("click", () => {
       filterState[section.id] = new Set(options.map(option => option.value));
       renderFilters();
@@ -189,6 +214,7 @@ function renderFilters() {
         } else {
           filterState[section.id].delete(option.value);
         }
+        updateActiveFilterCount();
         applyFilters();
       });
 
@@ -203,12 +229,12 @@ function renderFilters() {
     group.appendChild(list);
     filterGroups.appendChild(group);
   });
+
+  updateActiveFilterCount();
 }
 
 function cloneFilteredNode(node, context = {}) {
-  if (node.type === "file") {
-    return { ...node };
-  }
+  if (node.type === "file") return { ...node };
 
   const nextContext = { ...context };
 
@@ -221,17 +247,9 @@ function cloneFilteredNode(node, context = {}) {
   } else if (!context.source) {
     nextContext.source = node.name;
 
-    if (context.category === "Organisation Trial Papers" && !filterState.trials.has(node.name)) {
-      return null;
-    }
-
-    if (context.category === "Internal Assessments" && !filterState.internals.has(node.name)) {
-      return null;
-    }
-
-    if (context.category === "Q's By Topic" && !filterState.topics.has(node.name)) {
-      return null;
-    }
+    if (context.category === "Organisation Trial Papers" && !filterState.trials.has(node.name)) return null;
+    if (context.category === "Internal Assessments" && !filterState.internals.has(node.name)) return null;
+    if (context.category === "Q's By Topic" && !filterState.topics.has(node.name)) return null;
   }
 
   const children = (node.children || [])
@@ -239,14 +257,11 @@ function cloneFilteredNode(node, context = {}) {
     .filter(Boolean);
 
   if (!children.length) return null;
-
   return { ...node, children };
 }
 
 function getFilteredResources() {
-  return resources
-    .map(course => cloneFilteredNode(course))
-    .filter(Boolean);
+  return resources.map(course => cloneFilteredNode(course)).filter(Boolean);
 }
 
 function createNode(node, depth = 0, path = []) {
@@ -256,7 +271,7 @@ function createNode(node, depth = 0, path = []) {
     link.href = node.url;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.textContent = "📄 " + node.name;
+    link.textContent = node.name;
     link.dataset.name = node.name.toLowerCase();
     link.dataset.path = [...path, node.name].join(" › ").toLowerCase();
     return link;
@@ -333,9 +348,9 @@ function renderTree(nodes = getFilteredResources()) {
 
 function searchNode(element, query) {
   if (element.classList.contains("file-link")) {
-    const matches =
-      element.dataset.name.includes(query) ||
-      element.dataset.path.includes(query);
+    const terms = query.split(/\s+/).filter(Boolean);
+    const haystack = `${element.dataset.name} ${element.dataset.path}`;
+    const matches = terms.every(term => haystack.includes(term));
 
     element.style.display = matches ? "" : "none";
     return matches;
@@ -345,7 +360,9 @@ function searchNode(element, query) {
     const children = element.querySelector(":scope > .children");
     const title = element.querySelector(":scope > .folder-title");
     const label = title.querySelector(".folder-label");
-    const folderMatches = label.textContent.toLowerCase().includes(query);
+    const folderName = label.textContent.toLowerCase();
+    const terms = query.split(/\s+/).filter(Boolean);
+    const folderMatches = terms.every(term => folderName.includes(term));
 
     let hasMatch = false;
 
@@ -397,6 +414,14 @@ resetFiltersButton.addEventListener("click", () => {
   searchInput.value = "";
   renderFilters();
   renderTree();
+});
+
+collapseFiltersButton.addEventListener("click", () => {
+  pageShell.classList.add("filters-collapsed");
+});
+
+showFiltersButton.addEventListener("click", () => {
+  pageShell.classList.remove("filters-collapsed");
 });
 
 orderResources();
