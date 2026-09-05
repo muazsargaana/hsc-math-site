@@ -50,25 +50,58 @@ const externalResources = [
         children: [
           {
             type: "folder",
-            name: "Cambridge",
+            name: "Year 11",
             children: [
-              { type: "file", name: "Cambridge · Mathematics Extension 1", url: "https://drive.google.com/file/d/1yzqK3_ATHRAhXwIK4u1tqoA1EHE4mbqD/view" },
-              { type: "file", name: "Cambridge · Extension 1 Answers", url: "https://drive.google.com/file/d/1YSdAU5SFh-8_BQ0X7ZFSjiuOvq8HLG9L/view" },
-              { type: "file", name: "Cambridge · Worked Solutions Folder", url: "https://drive.google.com/drive/folders/1KUwSCKf0NrlREnj09nv1BU1SmD2qzKRJ" }
+              {
+                type: "folder",
+                name: "Cambridge",
+                children: [
+                  { type: "file", name: "Year 11 Cambridge Extension 1", url: "https://drive.google.com/file/d/1HCUHIwaVeW7xTGIJF_kzAscC452cEmNb/view" }
+                ]
+              },
+              {
+                type: "folder",
+                name: "Maths in Focus",
+                children: [
+                  { type: "file", name: "Maths Extension 1 in Focus · Year 11", url: "https://drive.google.com/file/d/1z5hJGu01bgGCZa6PgruqDu52Gny7ce4Q/view" }
+                ]
+              },
+              {
+                type: "folder",
+                name: "Fitzpatrick",
+                children: [
+                  { type: "file", name: "New Senior Mathematics Extension 1 · Year 11 & 12 · 2019", url: "https://drive.google.com/file/d/1T5dWQzYh55PLLxGq-y4KQ021V49WRfwt/view" }
+                ]
+              }
             ]
           },
           {
             type: "folder",
-            name: "Fitzpatrick",
+            name: "Year 12",
             children: [
-              { type: "file", name: "New Senior Mathematics Extension 1 · Year 11 & 12 · 2019", url: "https://drive.google.com/file/d/1T5dWQzYh55PLLxGq-y4KQ021V49WRfwt/view" }
-            ]
-          },
-          {
-            type: "folder",
-            name: "Maths in Focus",
-            children: [
-              { type: "file", name: "Maths in Focus Extension 1 · Year 12 · 2019", url: "https://drive.google.com/file/d/1e3ib8kst98WUF0bjfBlaTVnniq5Gmn0Y/view" }
+              {
+                type: "folder",
+                name: "Cambridge",
+                children: [
+                  { type: "file", name: "Cambridge · Mathematics Extension 1 · Year 12", url: "https://drive.google.com/file/d/1yzqK3_ATHRAhXwIK4u1tqoA1EHE4mbqD/view" },
+                  { type: "file", name: "Cambridge · Extension 1 Answers", url: "https://drive.google.com/file/d/1YSdAU5SFh-8_BQ0X7ZFSjiuOvq8HLG9L/view" },
+                  { type: "file", name: "Cambridge · Worked Solutions Folder", url: "https://drive.google.com/drive/folders/1KUwSCKf0NrlREnj09nv1BU1SmD2qzKRJ" }
+                ]
+              },
+              {
+                type: "folder",
+                name: "Fitzpatrick",
+                children: [
+                  { type: "file", name: "New Senior Mathematics Extension 1 · Year 11 & 12 · 2019", url: "https://drive.google.com/file/d/1T5dWQzYh55PLLxGq-y4KQ021V49WRfwt/view" }
+                ]
+              },
+              {
+                type: "folder",
+                name: "Maths in Focus",
+                children: [
+                  { type: "file", name: "Maths in Focus Extension 1 · Year 12 · 2019", url: "https://drive.google.com/file/d/1e3ib8kst98WUF0bjfBlaTVnniq5Gmn0Y/view" }
+                ]
+              }
             ]
           },
           {
@@ -87,6 +120,18 @@ const externalResources = [
   {
     course: "Mathematics Extension 2",
     categories: [
+      {
+        name: "Q's By Topic",
+        children: [
+          {
+            type: "folder",
+            name: "Steven Howard",
+            children: [
+              { type: "file", name: "1000 Extension 2 Revision Questions", url: "https://drive.google.com/file/d/1AbRkbL7m3MiKJuPQW-kv2797mF1tm4Xe/view" }
+            ]
+          }
+        ]
+      },
       {
         name: "Textbooks",
         children: [
@@ -125,8 +170,7 @@ const externalResources = [
             type: "folder",
             name: "Steven Howard",
             children: [
-              { type: "file", name: "HSC Mathematics Extension 2 Textbook · Steven Howard", url: "https://drive.google.com/file/d/1nqjMOC_eR6fggshfgBd869U5HvgatlhE/view" },
-              { type: "file", name: "1000 Extension 2 Revision Questions", url: "https://drive.google.com/file/d/1AbRkbL7m3MiKJuPQW-kv2797mF1tm4Xe/view" }
+              { type: "file", name: "HSC Mathematics Extension 2 Textbook · Steven Howard", url: "https://drive.google.com/file/d/1nqjMOC_eR6fggshfgBd869U5HvgatlhE/view" }
             ]
           },
           {
