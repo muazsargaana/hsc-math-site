@@ -10,13 +10,12 @@
     [/×/g, "x"], [/÷/g, "/"], [/√/g, "sqrt"], [/∞/g, "infinity"], [/∈/g, " in "],
     [/∴/g, "therefore"], [/∫/g, "integral "], [/→/g, "->"], [/−/g, "-"],
     [/²/g, "^2"], [/³/g, "^3"], [/⁻¹/g, "^-1"], [/·/g, " dot "],
+    [/½/g, "1/2"], [/⁄/g, "/"],
     [/[“”]/g, '"'], [/[‘’]/g, "'"], [/[–—]/g, "-"], [/⋯/g, "..."]
   ];
 
   function cleanMathText(value) {
     let text = String(value ?? "");
-
-    // Exact repairs for the broken embedded-font mappings in the NESA PDF.
     text = text
       .replace(/ଵ\s*௙\s*\(௫\)/g, "1/f(x)")
       .replace(/ඥ\s*𝑓\s*\(𝑥\)/g, "sqrt(f(x))")
@@ -36,13 +35,9 @@
       .replace(/஠\s*ଶ/g, "pi/2");
 
     text = text.normalize("NFKC");
-
-    Object.entries(greek).forEach(([symbol, word]) => {
-      text = text.split(symbol).join(word);
-    });
+    Object.entries(greek).forEach(([symbol, word]) => { text = text.split(symbol).join(word); });
     symbolMap.forEach(([pattern, replacement]) => { text = text.replace(pattern, replacement); });
 
-    // Remaining known extraction remnants.
     text = text
       .replace(/ඥ/g, "sqrt")
       .replace(/௫/g, "x")
@@ -53,7 +48,6 @@
       .replace(/଴/g, "0")
       .replace(/ି/g, "-");
 
-    // Never display stray Indic/Sinhala extraction glyphs or replacement characters.
     text = text
       .replace(/[\u0B80-\u0BFF\u0C00-\u0C7F\u0D80-\u0DFF]/g, "")
       .replace(/\uFFFD/g, "")
@@ -63,7 +57,6 @@
       .replace(/\s+\)/g, ")")
       .replace(/\s{2,}/g, " ")
       .trim();
-
     return text;
   }
 
