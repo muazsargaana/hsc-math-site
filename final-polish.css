@@ -1,3 +1,4 @@
+@import url("signature.css");
 /* Final production pass: dark-only, technical, restrained, fast. */
 :root,:root[data-theme="light"],:root[data-theme="dark"]{color-scheme:dark;--bg:#050812;--bg-2:#09111f;--surface:rgba(11,17,30,.82);--surface-strong:#0e1728;--surface-2:#121d31;--line:rgba(160,190,235,.12);--line-2:rgba(160,190,235,.22);--text:#f4f7fb;--muted:#9aa7bb;--muted-2:#677489;--cyan:#62dff2;--blue:#6aa7ff;--violet:#8f7df3;--pink:#c18cf0;--green:#41d6a3;--orange:#f5a35b;--input:rgba(6,11,21,.9);--hover:rgba(98,223,242,.055);--shadow:0 28px 80px rgba(0,0,0,.34);--shadow-soft:0 12px 34px rgba(0,0,0,.2)}
 .theme-toggle{display:none!important}
