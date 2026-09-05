@@ -6,6 +6,8 @@ const typeFilter = document.getElementById("type-filter");
 const sourceFilterWrap = document.getElementById("source-filter-wrap");
 const sourceFilter = document.getElementById("source-filter");
 const clearViewButton = document.getElementById("clear-view");
+const themeToggle = document.getElementById("theme-toggle");
+const themeLabel = themeToggle.querySelector(".theme-label");
 
 const MAIN_CATEGORY_ORDER = [
   "Organisation Trial Papers",
@@ -49,6 +51,24 @@ const viewState = {
   type: "",
   source: ""
 };
+
+function getInitialTheme() {
+  const saved = localStorage.getItem("hsc-maths-theme");
+  if (saved === "light" || saved === "dark") return saved;
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  themeLabel.textContent = theme === "dark" ? "Light" : "Dark";
+  themeToggle.setAttribute("aria-label", `Switch to ${theme === "dark" ? "light" : "dark"} mode`);
+}
+
+themeToggle.addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  localStorage.setItem("hsc-maths-theme", next);
+  applyTheme(next);
+});
 
 function naturalCompare(a, b) {
   return a.localeCompare(b, undefined, {
@@ -390,6 +410,7 @@ function applyView() {
 
 searchInput.addEventListener("input", applyView);
 
+applyTheme(getInitialTheme());
 orderResources();
 renderControls();
 applyView();
