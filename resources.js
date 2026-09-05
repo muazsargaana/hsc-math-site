@@ -995,17 +995,6 @@ const resources = [
                 "url": "https://drive.google.com/file/d/1V3F8YmNezHtcUfsXdoGsxqIr80kiocuW/view?usp=drivesdk"
               }
             ]
-          },
-          {
-            "type": "folder",
-            "name": "Unknown School",
-            "children": [
-              {
-                "type": "file",
-                "name": "2023 - Task 1 - Solutions Only.pdf",
-                "url": "https://drive.google.com/file/d/1wGqTzkFPRSeKl4O0CSxYzhHnFmEfKol9/view?usp=drivesdk"
-              }
-            ]
           }
         ]
       },
