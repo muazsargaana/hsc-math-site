@@ -1,5 +1,8 @@
 const treeContainer = document.getElementById("resource-tree");
 const searchInput = document.getElementById("search");
+const filterGroups = document.getElementById("filter-groups");
+const resetFiltersButton = document.getElementById("reset-filters");
+const resultCount = document.getElementById("result-count");
 
 const MAIN_CATEGORY_ORDER = [
   "Organisation Trial Papers",
@@ -32,6 +35,16 @@ const TRIAL_ORDER = {
     "ConquerHSC"
   ]
 };
+
+const FILTER_SECTIONS = [
+  { id: "courses", title: "Course" },
+  { id: "categories", title: "Resource type" },
+  { id: "trials", title: "Trial providers", category: "Organisation Trial Papers" },
+  { id: "internals", title: "Internal schools", category: "Internal Assessments" },
+  { id: "topics", title: "Topic collections", category: "Q's By Topic" }
+];
+
+const filterState = {};
 
 function naturalCompare(a, b) {
   return a.localeCompare(b, undefined, {
@@ -69,6 +82,171 @@ function orderResources() {
       });
     }
   });
+}
+
+function unique(values) {
+  return [...new Set(values)].sort(naturalCompare);
+}
+
+function getCategorySources(categoryName) {
+  const values = [];
+
+  resources.forEach(course => {
+    const category = course.children.find(child => child.name === categoryName);
+    if (!category) return;
+
+    (category.children || []).forEach(child => {
+      if (child.type === "folder") values.push(child.name);
+    });
+  });
+
+  if (categoryName === "Organisation Trial Papers") {
+    const preferred = unique([
+      ...TRIAL_ORDER["Mathematics Extension 1"],
+      ...TRIAL_ORDER["Mathematics Extension 2"]
+    ]);
+
+    return unique(values).sort((a, b) => {
+      const ai = preferred.indexOf(a);
+      const bi = preferred.indexOf(b);
+      const ar = ai === -1 ? 999 : ai;
+      const br = bi === -1 ? 999 : bi;
+      return ar - br || naturalCompare(a, b);
+    });
+  }
+
+  return unique(values);
+}
+
+function initialiseFilterState() {
+  filterState.courses = new Set(resources.map(course => course.name));
+  filterState.categories = new Set(MAIN_CATEGORY_ORDER);
+  filterState.trials = new Set(getCategorySources("Organisation Trial Papers"));
+  filterState.internals = new Set(getCategorySources("Internal Assessments"));
+  filterState.topics = new Set(getCategorySources("Q's By Topic"));
+}
+
+function shortCourseName(name) {
+  return name === "Mathematics Extension 1" ? "Extension 1 (3U)" :
+         name === "Mathematics Extension 2" ? "Extension 2 (4U)" : name;
+}
+
+function optionsForSection(section) {
+  if (section.id === "courses") {
+    return resources.map(course => ({ value: course.name, label: shortCourseName(course.name) }));
+  }
+
+  if (section.id === "categories") {
+    return MAIN_CATEGORY_ORDER.map(name => ({ value: name, label: name }));
+  }
+
+  return getCategorySources(section.category).map(name => ({ value: name, label: name }));
+}
+
+function renderFilters() {
+  filterGroups.innerHTML = "";
+
+  FILTER_SECTIONS.forEach(section => {
+    const options = optionsForSection(section);
+    if (!options.length) return;
+
+    const group = document.createElement("section");
+    group.className = "filter-group";
+
+    const header = document.createElement("div");
+    header.className = "filter-group-head";
+
+    const title = document.createElement("h3");
+    title.textContent = section.title;
+
+    const allButton = document.createElement("button");
+    allButton.type = "button";
+    allButton.className = "mini-button";
+    allButton.textContent = "All";
+    allButton.addEventListener("click", () => {
+      filterState[section.id] = new Set(options.map(option => option.value));
+      renderFilters();
+      applyFilters();
+    });
+
+    header.appendChild(title);
+    header.appendChild(allButton);
+    group.appendChild(header);
+
+    const list = document.createElement("div");
+    list.className = "check-list";
+
+    options.forEach(option => {
+      const label = document.createElement("label");
+      label.className = "check-row";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = filterState[section.id].has(option.value);
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) {
+          filterState[section.id].add(option.value);
+        } else {
+          filterState[section.id].delete(option.value);
+        }
+        applyFilters();
+      });
+
+      const text = document.createElement("span");
+      text.textContent = option.label;
+
+      label.appendChild(checkbox);
+      label.appendChild(text);
+      list.appendChild(label);
+    });
+
+    group.appendChild(list);
+    filterGroups.appendChild(group);
+  });
+}
+
+function cloneFilteredNode(node, context = {}) {
+  if (node.type === "file") {
+    return { ...node };
+  }
+
+  const nextContext = { ...context };
+
+  if (!context.course) {
+    nextContext.course = node.name;
+    if (!filterState.courses.has(node.name)) return null;
+  } else if (!context.category) {
+    nextContext.category = node.name;
+    if (!filterState.categories.has(node.name)) return null;
+  } else if (!context.source) {
+    nextContext.source = node.name;
+
+    if (context.category === "Organisation Trial Papers" && !filterState.trials.has(node.name)) {
+      return null;
+    }
+
+    if (context.category === "Internal Assessments" && !filterState.internals.has(node.name)) {
+      return null;
+    }
+
+    if (context.category === "Q's By Topic" && !filterState.topics.has(node.name)) {
+      return null;
+    }
+  }
+
+  const children = (node.children || [])
+    .map(child => cloneFilteredNode(child, nextContext))
+    .filter(Boolean);
+
+  if (!children.length) return null;
+
+  return { ...node, children };
+}
+
+function getFilteredResources() {
+  return resources
+    .map(course => cloneFilteredNode(course))
+    .filter(Boolean);
 }
 
 function createNode(node, depth = 0, path = []) {
@@ -128,11 +306,29 @@ function createNode(node, depth = 0, path = []) {
   return folder;
 }
 
-function renderTree() {
+function countFiles(nodes) {
+  let count = 0;
+
+  function walk(node) {
+    if (node.type === "file") {
+      count += 1;
+      return;
+    }
+    (node.children || []).forEach(walk);
+  }
+
+  nodes.forEach(walk);
+  return count;
+}
+
+function renderTree(nodes = getFilteredResources()) {
   treeContainer.innerHTML = "";
-  resources.forEach(node => {
+
+  nodes.forEach(node => {
     treeContainer.appendChild(createNode(node));
   });
+
+  resultCount.textContent = `${countFiles(nodes)} files`;
 }
 
 function searchNode(element, query) {
@@ -154,9 +350,7 @@ function searchNode(element, query) {
     let hasMatch = false;
 
     [...children.children].forEach(child => {
-      if (searchNode(child, query)) {
-        hasMatch = true;
-      }
+      if (searchNode(child, query)) hasMatch = true;
     });
 
     const matches = folderMatches || hasMatch;
@@ -174,18 +368,38 @@ function searchNode(element, query) {
   return false;
 }
 
-searchInput.addEventListener("input", () => {
+function applySearch() {
   const query = searchInput.value.trim().toLowerCase();
-
-  if (!query) {
-    renderTree();
-    return;
-  }
+  if (!query) return;
 
   [...treeContainer.children].forEach(node => {
     searchNode(node, query);
   });
+
+  const visibleFiles = [...document.querySelectorAll(".file-link")]
+    .filter(link => link.style.display !== "none").length;
+
+  resultCount.textContent = `${visibleFiles} matches`;
+}
+
+function applyFilters() {
+  renderTree();
+  applySearch();
+}
+
+searchInput.addEventListener("input", () => {
+  renderTree();
+  applySearch();
+});
+
+resetFiltersButton.addEventListener("click", () => {
+  initialiseFilterState();
+  searchInput.value = "";
+  renderFilters();
+  renderTree();
 });
 
 orderResources();
+initialiseFilterState();
+renderFilters();
 renderTree();
