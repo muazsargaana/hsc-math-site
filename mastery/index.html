@@ -3,42 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mastery Tracker · Math Resources</title>
+  <meta name="theme-color" content="#060914">
+  <title>Mastery · HSC Maths Hub</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../mastery.css">
 </head>
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
-  <div class="top-rule"></div>
+  <div class="page-noise" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <div class="aurora aurora-a" aria-hidden="true"></div>
+  <div class="aurora aurora-b" aria-hidden="true"></div>
+  <div class="grid-field" aria-hidden="true"></div>
 
   <main class="content-shell">
-    <header class="page-header mastery-hero">
-      <div class="header-row">
-        <div class="hero-copy">
-          <nav class="site-nav" aria-label="Main navigation">
-            <a href="/">Resources</a>
-            <a class="active" href="/mastery/">Mastery</a>
-          </nav>
-          <div class="eyebrow">SYLLABUS MASTERY</div>
-          <h1>Know exactly what<br><span>needs work.</span></h1>
-          <p class="subtitle">Granular NSW HSC Mathematics · Extension 1 &amp; Extension 2 tracking</p>
+    <nav class="top-dock" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="HSC Maths Hub home">
+        <span class="brand-mark">∑</span>
+        <span>HSC Maths</span>
+      </a>
+      <div class="dock-links">
+        <a href="/">Resources</a>
+        <a class="active" href="/mastery/">Mastery</a>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme">
+        <span class="theme-icon" aria-hidden="true"></span>
+        <span class="theme-label">Light</span>
+      </button>
+    </nav>
+
+    <header class="mastery-hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span> SYLLABUS MASTERY SYSTEM</div>
+        <h1>Know exactly <span>where you stand.</span></h1>
+        <p class="hero-lead">Track every assessable Extension 1 and Extension 2 skill from first exposure to unfamiliar HSC-level mastery.</p>
+      </div>
+      <div class="mastery-ring-card tilt-card">
+        <div id="mastery-ring" class="mastery-ring" style="--progress:0">
+          <div class="mastery-ring-inner">
+            <span>HSC READY</span>
+            <strong id="mastery-ring-value">0%</strong>
+            <small>overall mastery</small>
+          </div>
         </div>
-        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme">
-          <span class="theme-icon" aria-hidden="true"></span>
-          <span class="theme-label">Light</span>
-        </button>
+        <div class="ring-caption">
+          <span><i class="status-dot green"></i>Green means unfamiliar exam-ready</span>
+        </div>
       </div>
     </header>
 
     <section class="mastery-overview" aria-label="Overall mastery summary">
-      <div class="overview-card ready-card"><span class="overview-kicker">READY</span><strong id="overall-green">0%</strong><span>HSC-ready</span></div>
-      <div class="overview-card weak-card"><span class="overview-kicker">FOCUS</span><strong id="overall-red">0</strong><span>Weak</span></div>
-      <div class="overview-card inconsistent-card"><span class="overview-kicker">BUILD</span><strong id="overall-yellow">0</strong><span>Inconsistent</span></div>
-      <div class="overview-card remaining-card"><span class="overview-kicker">LEFT</span><strong id="overall-remaining">0</strong><span>Remaining</span></div>
+      <div class="overview-card overview-green"><span class="overview-label">HSC-ready</span><strong id="overall-green">0%</strong><small>mastered skills</small></div>
+      <div class="overview-card overview-red"><span class="overview-label">Weak</span><strong id="overall-red">0</strong><small>needs attention</small></div>
+      <div class="overview-card overview-yellow"><span class="overview-label">Inconsistent</span><strong id="overall-yellow">0</strong><small>needs harder practice</small></div>
+      <div class="overview-card overview-neutral"><span class="overview-label">Remaining</span><strong id="overall-remaining">0</strong><small>not secure yet</small></div>
     </section>
 
-    <section class="resource-panel mastery-panel">
+    <section class="mastery-workspace">
+      <div class="workspace-heading">
+        <div>
+          <span class="section-kicker">MASTERY INDEX</span>
+          <h2>Every skill. One status.</h2>
+        </div>
+        <span id="mastery-result-count" class="result-count"></span>
+      </div>
+
       <div class="control-bar mastery-controls">
         <div class="quick-filter"><span class="control-label">Course</span><div id="subject-filter" class="segmented"></div></div>
         <div class="quick-filter"><span class="control-label">Year</span><div id="year-filter" class="segmented"></div></div>
@@ -53,15 +81,14 @@
             <option value="grey">Grey · Not started</option>
           </select>
         </div>
-        <button id="clear-mastery-view" class="clear-view" type="button">Clear view</button>
+        <button id="clear-mastery-view" class="clear-view" type="button">Reset view</button>
       </div>
 
       <div class="toolbar">
         <div class="search-wrap">
           <span class="search-mark">⌕</span>
-          <input id="mastery-search" type="search" placeholder="Search syllabus skills" autocomplete="off">
+          <input id="mastery-search" type="search" placeholder="Search syllabus skills…" autocomplete="off">
         </div>
-        <span id="mastery-result-count" class="result-count"></span>
       </div>
 
       <div class="status-key" aria-label="Traffic light status key">
