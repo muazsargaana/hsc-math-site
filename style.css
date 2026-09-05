@@ -20,7 +20,7 @@ body {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   background:
-    radial-gradient(circle at 82% -12%, rgba(92, 128, 160, 0.09), transparent 36%),
+    radial-gradient(circle at 82% -12%, rgba(92, 128, 160, 0.08), transparent 36%),
     var(--bg);
   color: var(--text);
 }
@@ -33,63 +33,63 @@ select {
 
 .top-rule {
   height: 2px;
-  background: linear-gradient(90deg, #86b1d6 0 28%, #354454 28% 100%);
+  background: linear-gradient(90deg, #86b1d6 0 25%, #354454 25% 100%);
   opacity: 0.82;
 }
 
 .content-shell {
-  width: min(1380px, 88vw);
-  margin: 46px auto 90px;
+  width: min(1210px, 90vw);
+  margin: 38px auto 78px;
 }
 
 .page-header {
-  margin-bottom: 28px;
-  padding-bottom: 24px;
+  margin-bottom: 23px;
+  padding-bottom: 19px;
   border-bottom: 1px solid var(--line);
 }
 
 .title-line {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 9px;
 }
 
 h1 {
   margin: 0;
-  font-size: clamp(42px, 4.2vw, 58px);
+  font-size: clamp(37px, 3.7vw, 50px);
   font-weight: 760;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.052em;
   line-height: 1;
 }
 
 .archive-mark {
   color: #536170;
-  font-size: 38px;
+  font-size: 34px;
   font-weight: 300;
 }
 
 .subtitle {
-  margin: 11px 0 0;
+  margin: 9px 0 0;
   color: #9aa5b0;
-  font-size: 15px;
-  line-height: 1.45;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .control-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 16px 24px;
-  margin-bottom: 20px;
-  padding: 18px 20px;
-  background: rgba(17, 23, 30, 0.88);
+  gap: 13px 20px;
+  margin-bottom: 17px;
+  padding: 14px 16px;
+  background: rgba(17, 23, 30, 0.84);
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: 8px;
 }
 
 .quick-filter {
   display: grid;
-  gap: 7px;
+  gap: 6px;
 }
 
 .control-label,
@@ -99,7 +99,7 @@ h1 {
 
 .control-label {
   color: #7f8b97;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -108,7 +108,7 @@ h1 {
 .segmented {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .segment-button,
@@ -120,9 +120,9 @@ h1 {
 }
 
 .segment-button {
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 12px;
 }
 
 .segment-button:hover {
@@ -137,14 +137,14 @@ h1 {
 }
 
 .source-filter-wrap select {
-  min-width: 180px;
-  padding: 8px 30px 8px 11px;
+  min-width: 165px;
+  padding: 6px 28px 6px 10px;
   color: #cbd4dd;
   background: #10161d;
   border: 1px solid #2d3844;
-  border-radius: 6px;
+  border-radius: 5px;
   outline: none;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .source-filter-wrap select:focus {
@@ -153,10 +153,10 @@ h1 {
 
 .clear-view {
   align-self: end;
-  padding: 8px 11px;
-  border-radius: 6px;
+  padding: 6px 10px;
+  border-radius: 5px;
   color: #909ba6;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .clear-view:hover {
@@ -171,8 +171,8 @@ h1 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 18px;
-  margin-bottom: 30px;
+  gap: 15px;
+  margin-bottom: 24px;
 }
 
 .search-wrap {
@@ -181,23 +181,23 @@ h1 {
 
 .search-mark {
   position: absolute;
-  left: 15px;
+  left: 13px;
   top: 50%;
   transform: translateY(-52%);
   color: #6f7c89;
-  font-size: 18px;
+  font-size: 17px;
   pointer-events: none;
 }
 
 #search {
   width: 100%;
-  padding: 15px 16px 15px 42px;
+  padding: 12px 14px 12px 38px;
   color: var(--text);
   background: #10151b;
   border: 1px solid #2c3540;
-  border-radius: 7px;
+  border-radius: 6px;
   outline: none;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 #search::placeholder {
@@ -210,30 +210,30 @@ h1 {
 }
 
 .result-count {
-  min-width: 84px;
+  min-width: 78px;
   color: #78838f;
-  font-size: 11px;
+  font-size: 10px;
   text-align: right;
   white-space: nowrap;
 }
 
 #resource-tree {
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
 .folder {
-  margin: 3px 0;
+  margin: 2px 0;
 }
 
 .course-folder {
   position: relative;
   margin: 0;
-  padding: 12px 16px 16px 18px;
-  background: rgba(16, 22, 29, 0.74);
+  padding: 8px 12px 11px 15px;
+  background: rgba(16, 22, 29, 0.68);
   border: 1px solid #202833;
   border-left: 3px solid #587895;
-  border-radius: 8px;
+  border-radius: 7px;
 }
 
 .course-folder::before {
@@ -242,26 +242,26 @@ h1 {
   top: 0;
   left: -3px;
   width: 3px;
-  height: 58px;
+  height: 50px;
   background: #8bb3d5;
-  border-radius: 8px 0 0 0;
+  border-radius: 7px 0 0 0;
 }
 
 .main-category {
-  margin: 14px 0;
+  margin: 10px 0;
 }
 
 .folder-title {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 9px 11px;
+  gap: 8px;
+  padding: 7px 9px;
   border: 0;
-  border-radius: 5px;
+  border-radius: 4px;
   background: transparent;
   color: #dbe1e7;
-  font-size: 14.5px;
+  font-size: 13.5px;
   text-align: left;
   cursor: pointer;
   user-select: none;
@@ -272,26 +272,26 @@ h1 {
 }
 
 .course-folder > .folder-title {
-  padding: 10px 11px 13px;
+  padding: 8px 9px 10px;
   color: #f2f5f8;
-  font-size: 21px;
+  font-size: 19px;
   font-weight: 730;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.018em;
 }
 
 .main-category > .folder-title {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 8px;
+  padding-bottom: 8px;
   color: #cbd4dc;
-  font-size: 15.5px;
+  font-size: 14.5px;
   font-weight: 650;
 }
 
 .folder-arrow {
-  flex: 0 0 13px;
+  flex: 0 0 12px;
   display: inline-block;
   color: #768390;
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1;
   transition: transform 90ms ease;
 }
@@ -301,18 +301,18 @@ h1 {
 }
 
 .children {
-  margin-left: 24px;
-  padding-left: 12px;
+  margin-left: 20px;
+  padding-left: 10px;
   border-left: 1px solid #232c36;
 }
 
 .course-folder > .children {
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 .main-category > .children {
-  margin-top: 4px;
-  margin-bottom: 10px;
+  margin-top: 3px;
+  margin-bottom: 8px;
 }
 
 .hidden {
@@ -322,13 +322,13 @@ h1 {
 .file-link {
   display: flex;
   align-items: baseline;
-  gap: 9px;
-  padding: 7px 10px;
+  gap: 8px;
+  padding: 5px 8px;
   margin: 1px 0;
-  border-radius: 5px;
+  border-radius: 4px;
   color: #bec7d0;
-  font-size: 13.8px;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.4;
   text-decoration: none;
 }
 
@@ -355,16 +355,16 @@ h1 {
 @media (max-width: 700px) {
   .content-shell {
     width: 94%;
-    margin-top: 28px;
+    margin-top: 26px;
   }
 
   h1 {
-    font-size: 38px;
+    font-size: 36px;
   }
 
   .control-bar {
-    gap: 13px;
-    padding: 14px;
+    gap: 12px;
+    padding: 12px;
   }
 
   .quick-filter {
@@ -389,15 +389,15 @@ h1 {
   }
 
   .children {
-    margin-left: 14px;
-    padding-left: 8px;
+    margin-left: 13px;
+    padding-left: 7px;
   }
 
   .course-folder {
-    padding-left: 12px;
+    padding-left: 11px;
   }
 
   .course-folder > .folder-title {
-    font-size: 19px;
+    font-size: 18px;
   }
 }
