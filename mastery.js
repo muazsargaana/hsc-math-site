@@ -43,7 +43,7 @@ function loadState() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
   catch { return {}; }
 }
-function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); window.HSCCloud?.queue('mastery'); }
 function getRecord(id) {
   if (!state[id]) state[id] = { status: "grey", notes: "", lastRevised: "" };
   return state[id];
@@ -80,16 +80,15 @@ themeToggle.addEventListener("click", () => {
 applyTheme(getInitialTheme());
 
 function renderSegmented(container, options, key) {
-  const fragment = document.createDocumentFragment();
+  container.innerHTML = "";
   options.forEach(option => {
     const button = document.createElement("button");
     button.className = "segment-button" + (view[key] === option.value ? " active" : "");
     button.type = "button";
     button.textContent = option.label;
     button.addEventListener("click", () => { view[key] = option.value; render(); });
-    fragment.appendChild(button);
+    container.appendChild(button);
   });
-  container.replaceChildren(fragment);
 }
 
 function matchesSkill(topic, section, skill) {
@@ -131,7 +130,7 @@ function setStatus(skill, status) {
   rec.status = status;
   rec.lastRevised = today();
   saveState();
-  requestAnimationFrame(render);
+  render();
 }
 
 function createTrafficButtons(skill) {
@@ -156,7 +155,6 @@ function createSkillRow(skill) {
   const rec = getRecord(skill.skillId);
   const row = document.createElement("div");
   row.className = `skill-row skill-${rec.status}`;
-  row.dataset.skillId = skill.skillId;
 
   const main = document.createElement("div");
   main.className = "skill-main";
@@ -195,13 +193,14 @@ function createSkillRow(skill) {
   exact.append(exactSummary, wording);
   const textarea = document.createElement("textarea");
   textarea.className = "skill-notes";
-  textarea.placeholder = "Quick notes: mistakes, question numbers, what to revise...";
+  textarea.placeholder = "Quick notes: mistakes, question numbers, what to revise…";
   textarea.value = rec.notes;
   textarea.rows = 2;
   textarea.addEventListener("change", () => {
     rec.notes = textarea.value.trim();
     rec.lastRevised = today();
     saveState();
+    render();
   });
   detail.append(exact, textarea);
   row.appendChild(detail);
@@ -212,21 +211,21 @@ function createSkillRow(skill) {
   return row;
 }
 
+function sourceTopicFor(topic) {
+  return MASTERY_SYLLABUS.find(t => t.topicCode === topic.topicCode && t.subjectKey === topic.subjectKey && t.year === topic.year) || topic;
+}
+
 function renderTopic(topic) {
   const panel = document.createElement("section");
   panel.className = "mastery-topic";
-  panel.dataset.topicCode = topic.topicCode;
-
-  const sourceTopic = MASTERY_SYLLABUS.find(t => t.topicCode === topic.topicCode && t.year === topic.year && t.subjectKey === topic.subjectKey) || topic;
-  const sourceSkills = allSkillsForTopic(sourceTopic);
-  const fullSummary = summary(sourceSkills);
-  const total = sourceSkills.length || 1;
-
+  const fullTopic = sourceTopicFor(topic);
+  const fullSummary = summary(allSkillsForTopic(fullTopic));
+  const total = allSkillsForTopic(fullTopic).length || 1;
   const header = document.createElement("button");
   header.className = "mastery-topic-header";
   header.type = "button";
   const arrow = document.createElement("span");
-  arrow.className = "folder-arrow";
+  arrow.className = "folder-arrow" + (openTopics.has(topic.topicCode) ? " open" : "");
   arrow.textContent = ">";
   const title = document.createElement("div");
   title.innerHTML = `<span class="topic-code">${topic.topicCode}</span><strong>${topic.topicName}</strong><small>${topic.subjectKey === "ext1" ? "Extension 1" : "Extension 2"} · Year ${topic.year}</small>`;
@@ -247,11 +246,11 @@ function renderTopic(topic) {
   panel.appendChild(progress);
 
   const body = document.createElement("div");
-  body.className = "mastery-topic-body hidden";
-  let populated = false;
-  const populateBody = () => {
-    if (populated) return;
-    const fragment = document.createDocumentFragment();
+  body.className = "mastery-topic-body";
+  if (!openTopics.has(topic.topicCode)) body.classList.add("hidden");
+  let built = false;
+  const buildBody = () => {
+    if (built) return;
     topic.sections.forEach(section => {
       const sectionEl = document.createElement("section");
       sectionEl.className = "mastery-section";
@@ -259,30 +258,16 @@ function renderTopic(topic) {
       sectionTitle.className = "mastery-section-title";
       sectionTitle.innerHTML = `<span>${section.sectionCode}</span><strong>${section.sectionName}</strong>`;
       sectionEl.appendChild(sectionTitle);
-      const skillFragment = document.createDocumentFragment();
-      section.skills.forEach(skill => skillFragment.appendChild(createSkillRow(skill)));
-      sectionEl.appendChild(skillFragment);
-      fragment.appendChild(sectionEl);
+      section.skills.forEach(skill => sectionEl.appendChild(createSkillRow(skill)));
+      body.appendChild(sectionEl);
     });
-    body.appendChild(fragment);
-    populated = true;
+    built = true;
   };
-
-  const shouldOpen = openTopics.has(topic.topicCode);
-  if (shouldOpen) {
-    populateBody();
-    body.classList.remove("hidden");
-    arrow.classList.add("open");
-  }
-
+  if (openTopics.has(topic.topicCode)) buildBody();
   header.addEventListener("click", () => {
     const opening = body.classList.contains("hidden");
-    if (opening) {
-      populateBody();
-      openTopics.add(topic.topicCode);
-    } else {
-      openTopics.delete(topic.topicCode);
-    }
+    if (opening) { openTopics.add(topic.topicCode); buildBody(); }
+    else openTopics.delete(topic.topicCode);
     body.classList.toggle("hidden");
     arrow.classList.toggle("open", opening);
   });
@@ -309,36 +294,30 @@ function render() {
   renderSegmented(subjectFilter, [{value:"",label:"All"},{value:"ext1",label:"3U"},{value:"ext2",label:"4U"}], "subject");
   renderSegmented(yearFilter, [{value:"",label:"All"},{value:"11",label:"Year 11"},{value:"12",label:"Year 12"}], "year");
   statusFilter.value = view.status;
-
-  const topics = filteredTopics();
   const fragment = document.createDocumentFragment();
+  const topics = filteredTopics();
   topics.forEach(topic => fragment.appendChild(renderTopic(topic)));
-  tree.replaceChildren(fragment);
-
-  const visibleSkills = topics.reduce((n,t) => n + t.sections.reduce((m,s) => m + s.skills.length, 0), 0);
-  resultCount.textContent = `${visibleSkills} skills`;
-  updateOverall();
-
   if (!topics.length) {
     const empty = document.createElement("div");
     empty.className = "mastery-empty";
     empty.textContent = "No syllabus skills match this view.";
-    tree.appendChild(empty);
+    fragment.appendChild(empty);
   }
+  tree.replaceChildren(fragment);
+  const visibleSkills = topics.reduce((n,t) => n + t.sections.reduce((m,s) => m + s.skills.length, 0), 0);
+  resultCount.textContent = `${visibleSkills} skills`;
+  updateOverall();
 }
 
 searchInput.addEventListener("input", e => {
-  window.clearTimeout(searchTimer);
-  searchTimer = window.setTimeout(() => {
-    view.query = e.target.value.trim();
-    render();
-  }, 110);
+  view.query = e.target.value.trim();
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(render, 90);
 });
 statusFilter.addEventListener("change", e => { view.status = e.target.value; render(); });
 clearButton.addEventListener("click", () => {
   view.subject = ""; view.year = ""; view.status = ""; view.query = "";
   searchInput.value = "";
-  openTopics.clear();
   render();
 });
 
