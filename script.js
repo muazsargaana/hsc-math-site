@@ -58,6 +58,7 @@ const SOURCE_FILTER_TYPES = new Set([
 ]);
 
 const viewState = { course: "", type: "", source: "" };
+let searchTimer = 0;
 
 function isHiddenFolder(name) {
   return typeof name === "string" && name.toLowerCase().includes("unknown school");
@@ -65,14 +66,12 @@ function isHiddenFolder(name) {
 
 function mergeExternalResources() {
   if (typeof externalResources === "undefined" || !Array.isArray(externalResources)) return;
-
   externalResources.forEach(externalCourse => {
     let course = resources.find(item => item.name === externalCourse.course);
     if (!course) {
       course = { type: "folder", name: externalCourse.course, children: [] };
       resources.push(course);
     }
-
     (externalCourse.categories || []).forEach(externalCategory => {
       let category = (course.children || []).find(item => item.name === externalCategory.name);
       if (!category) {
@@ -140,7 +139,7 @@ function orderResources() {
 }
 
 function renderSegmented(container, options, selectedValue, onSelect) {
-  container.innerHTML = "";
+  const fragment = document.createDocumentFragment();
   options.forEach(option => {
     const button = document.createElement("button");
     button.type = "button";
@@ -149,14 +148,14 @@ function renderSegmented(container, options, selectedValue, onSelect) {
     button.classList.toggle("active", option.value === selectedValue);
     button.setAttribute("aria-pressed", option.value === selectedValue ? "true" : "false");
     button.addEventListener("click", () => onSelect(option.value));
-    container.appendChild(button);
+    fragment.appendChild(button);
   });
+  container.replaceChildren(fragment);
 }
 
 function sourceOptionsForCurrentView() {
   if (!SOURCE_FILTER_TYPES.has(viewState.type)) return [];
   const names = [];
-
   resources.forEach(course => {
     if (viewState.course && course.name !== viewState.course) return;
     const category = course.children.find(child => child.name === viewState.type);
@@ -165,7 +164,6 @@ function sourceOptionsForCurrentView() {
       if (child.type === "folder" && !isHiddenFolder(child.name)) names.push(child.name);
     });
   });
-
   return [...new Set(names)].sort(naturalCompare);
 }
 
@@ -173,14 +171,11 @@ function renderControls() {
   renderSegmented(courseFilter, COURSE_OPTIONS, viewState.course, value => {
     viewState.course = value;
     viewState.source = "";
-    renderControls();
     applyView();
   });
-
   renderSegmented(typeFilter, TYPE_OPTIONS, viewState.type, value => {
     viewState.type = value;
     viewState.source = "";
-    renderControls();
     applyView();
   });
 
@@ -189,23 +184,20 @@ function renderControls() {
   sourceFilterWrap.classList.toggle("hidden-control", !showSource);
 
   if (showSource) {
-    sourceFilter.innerHTML = "";
+    const fragment = document.createDocumentFragment();
     const allOption = document.createElement("option");
     allOption.value = "";
     allOption.textContent = viewState.type.includes("Papers") || viewState.type.includes("Trial")
       ? "All providers"
-      : viewState.type.includes("Textbook")
-        ? "All sources"
-        : "All collections";
-    sourceFilter.appendChild(allOption);
-
+      : viewState.type.includes("Textbook") ? "All sources" : "All collections";
+    fragment.appendChild(allOption);
     sources.forEach(name => {
       const option = document.createElement("option");
       option.value = name;
       option.textContent = name;
-      sourceFilter.appendChild(option);
+      fragment.appendChild(option);
     });
-
+    sourceFilter.replaceChildren(fragment);
     if (sources.includes(viewState.source)) sourceFilter.value = viewState.source;
     else { viewState.source = ""; sourceFilter.value = ""; }
   }
@@ -215,7 +207,6 @@ function renderControls() {
 
 sourceFilter.addEventListener("change", () => {
   viewState.source = sourceFilter.value;
-  renderControls();
   applyView();
 });
 
@@ -224,12 +215,11 @@ clearViewButton.addEventListener("click", () => {
   viewState.type = "";
   viewState.source = "";
   searchInput.value = "";
-  renderControls();
   applyView();
 });
 
 function cloneForView(node, context = {}) {
-  if (node.type === "file") return { ...node };
+  if (node.type === "file") return node;
   if (isHiddenFolder(node.name)) return null;
 
   if (!context.course) {
@@ -271,7 +261,7 @@ function createNode(node, depth = 0, path = []) {
     link.textContent = node.name;
     link.dataset.kind = linkKind(node.url);
     link.dataset.name = node.name.toLowerCase();
-    link.dataset.path = [...path, node.name].join(" › ").toLowerCase();
+    link.dataset.path = [...path, node.name].join(" / ").toLowerCase();
     return link;
   }
 
@@ -283,15 +273,13 @@ function createNode(node, depth = 0, path = []) {
   const title = document.createElement("button");
   title.type = "button";
   title.className = "folder-title";
-
   const autoOpen = Boolean((viewState.type && depth <= 1) || (viewState.source && depth <= 2));
   title.setAttribute("aria-expanded", autoOpen ? "true" : "false");
 
   const arrow = document.createElement("span");
   arrow.className = "folder-arrow";
-  arrow.textContent = "›";
+  arrow.textContent = ">";
   arrow.classList.toggle("open", autoOpen);
-
   const label = document.createElement("span");
   label.className = "folder-label";
   label.textContent = node.name;
@@ -300,7 +288,9 @@ function createNode(node, depth = 0, path = []) {
   const children = document.createElement("div");
   children.className = "children";
   if (!autoOpen) children.classList.add("hidden");
-  (node.children || []).forEach(child => children.appendChild(createNode(child, depth + 1, [...path, node.name])));
+  const fragment = document.createDocumentFragment();
+  (node.children || []).forEach(child => fragment.appendChild(createNode(child, depth + 1, [...path, node.name])));
+  children.appendChild(fragment);
 
   title.addEventListener("click", () => {
     const opening = children.classList.contains("hidden");
@@ -308,7 +298,6 @@ function createNode(node, depth = 0, path = []) {
     title.setAttribute("aria-expanded", opening ? "true" : "false");
     arrow.classList.toggle("open", opening);
   });
-
   folder.append(title, children);
   return folder;
 }
@@ -336,8 +325,9 @@ function updateLaunchCounts() {
 
 function renderTree() {
   const nodes = getVisibleResources();
-  treeContainer.innerHTML = "";
-  nodes.forEach(node => treeContainer.appendChild(createNode(node)));
+  const fragment = document.createDocumentFragment();
+  nodes.forEach(node => fragment.appendChild(createNode(node)));
+  treeContainer.replaceChildren(fragment);
   resultCount.textContent = `${countFiles(nodes)} resources`;
 }
 
@@ -345,7 +335,7 @@ function searchNode(element, terms) {
   if (element.classList.contains("file-link")) {
     const haystack = `${element.dataset.name} ${element.dataset.path}`;
     const matches = terms.every(term => haystack.includes(term));
-    element.style.display = matches ? "" : "none";
+    element.hidden = !matches;
     return matches;
   }
   if (!element.classList.contains("folder")) return false;
@@ -355,11 +345,9 @@ function searchNode(element, terms) {
   const label = title.querySelector(".folder-label").textContent.toLowerCase();
   const ownMatch = terms.every(term => label.includes(term));
   let childMatch = false;
-
-  [...children.children].forEach(child => { if (searchNode(child, terms)) childMatch = true; });
+  for (const child of children.children) if (searchNode(child, terms)) childMatch = true;
   const matches = ownMatch || childMatch;
-  element.style.display = matches ? "" : "none";
-
+  element.hidden = !matches;
   if (matches) {
     children.classList.remove("hidden");
     title.setAttribute("aria-expanded", "true");
@@ -370,20 +358,30 @@ function searchNode(element, terms) {
 
 function applySearch() {
   const query = searchInput.value.trim().toLowerCase();
-  if (!query) return;
+  if (!query) {
+    renderTree();
+    return;
+  }
   const terms = query.split(/\s+/).filter(Boolean);
-  [...treeContainer.children].forEach(node => searchNode(node, terms));
-  const visibleFiles = [...document.querySelectorAll(".file-link")].filter(link => link.style.display !== "none").length;
+  for (const node of treeContainer.children) searchNode(node, terms);
+  const visibleFiles = [...treeContainer.querySelectorAll(".file-link")].filter(link => !link.hidden).length;
   resultCount.textContent = `${visibleFiles} matches`;
 }
 
 function applyView() {
   renderTree();
-  applySearch();
   renderControls();
+  if (searchInput.value.trim()) applySearch();
 }
 
-searchInput.addEventListener("input", applyView);
+searchInput.addEventListener("input", () => {
+  window.clearTimeout(searchTimer);
+  searchTimer = window.setTimeout(() => {
+    if (searchInput.value.trim()) applySearch();
+    else renderTree();
+    renderControls();
+  }, 90);
+});
 
 document.querySelectorAll("[data-course]").forEach(card => {
   card.addEventListener("click", () => {
@@ -391,7 +389,6 @@ document.querySelectorAll("[data-course]").forEach(card => {
     viewState.type = "";
     viewState.source = "";
     searchInput.value = "";
-    renderControls();
     applyView();
     document.getElementById("resources")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
@@ -402,8 +399,7 @@ document.querySelector("[data-jump='resources']")?.addEventListener("click", () 
 });
 
 document.addEventListener("keydown", event => {
-  const commandSearch = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
-  if (commandSearch) {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
     event.preventDefault();
     searchInput.focus();
     searchInput.select();
@@ -411,33 +407,46 @@ document.addEventListener("keydown", event => {
   if (event.key === "Escape" && document.activeElement === searchInput) searchInput.blur();
 });
 
+const finePointer = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const glow = document.querySelector(".cursor-glow");
-if (glow && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+if (glow && finePointer && !reducedMotion) {
+  let gx = 0, gy = 0, glowFrame = 0;
   window.addEventListener("pointermove", event => {
-    glow.style.left = `${event.clientX}px`;
-    glow.style.top = `${event.clientY}px`;
+    gx = event.clientX; gy = event.clientY;
+    if (glowFrame) return;
+    glowFrame = requestAnimationFrame(() => {
+      glow.style.transform = `translate3d(${gx - 210}px,${gy - 210}px,0)`;
+      glowFrame = 0;
+    });
   }, { passive: true });
 }
 
-if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+if (finePointer && !reducedMotion) {
   document.querySelectorAll(".tilt-card").forEach(card => {
+    let rect = null, px = 0, py = 0, frame = 0;
+    card.addEventListener("pointerenter", () => { rect = card.getBoundingClientRect(); }, { passive: true });
     card.addEventListener("pointermove", event => {
-      const rect = card.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width;
-      const y = (event.clientY - rect.top) / rect.height;
-      card.style.setProperty("--mx", `${x * 100}%`);
-      card.style.setProperty("--my", `${y * 100}%`);
-      const rx = (0.5 - y) * 3.5;
-      const ry = (x - 0.5) * 4.5;
-      card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
-    });
-    card.addEventListener("pointerleave", () => { card.style.transform = ""; });
+      if (!rect) rect = card.getBoundingClientRect();
+      px = (event.clientX - rect.left) / rect.width;
+      py = (event.clientY - rect.top) / rect.height;
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        card.style.setProperty("--mx", `${px * 100}%`);
+        card.style.setProperty("--my", `${py * 100}%`);
+        card.style.transform = `perspective(900px) rotateX(${(0.5 - py) * 2.2}deg) rotateY(${(px - 0.5) * 2.8}deg)`;
+        frame = 0;
+      });
+    }, { passive: true });
+    card.addEventListener("pointerleave", () => {
+      rect = null;
+      card.style.transform = "";
+    }, { passive: true });
   });
 }
 
 applyTheme(getInitialTheme());
 mergeExternalResources();
 orderResources();
-renderControls();
 applyView();
 updateLaunchCounts();
