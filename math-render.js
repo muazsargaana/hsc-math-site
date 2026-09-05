@@ -65,73 +65,35 @@
   function rangesFor(text){
     const ranges=[];
     for(const pattern of patterns){
-      pattern.lastIndex=0;
-      let m;
-      while((m=pattern.exec(text))){
-        const start=m.index,end=start+m[0].length;
-        if(end>start)ranges.push({start,end});
-        if(pattern.lastIndex===m.index)pattern.lastIndex++;
-      }
+      pattern.lastIndex=0;let m;
+      while((m=pattern.exec(text))){const start=m.index,end=start+m[0].length;if(end>start)ranges.push({start,end});if(pattern.lastIndex===m.index)pattern.lastIndex++;}
     }
     ranges.sort((a,b)=>a.start-b.start||(b.end-b.start)-(a.end-a.start));
     const merged=[];
-    for(const r of ranges){
-      if(!merged.length||r.start>=merged[merged.length-1].end)merged.push({...r});
-      else if(r.end>merged[merged.length-1].end)merged[merged.length-1].end=r.end;
-    }
+    for(const r of ranges){if(!merged.length||r.start>=merged[merged.length-1].end)merged.push({...r});else if(r.end>merged[merged.length-1].end)merged[merged.length-1].end=r.end;}
     return merged;
   }
 
-  function renderTex(el,tex,displayMode=false){
-    if(!el)return;
-    if(window.katex?.render){
-      try{window.katex.render(tex,el,{throwOnError:false,strict:false,displayMode,trust:false});return;}catch{}
-    }
-    el.textContent=tex;
-  }
-
+  function renderTex(el,tex,displayMode=false){if(!el)return;if(window.katex?.render){try{window.katex.render(tex,el,{throwOnError:false,strict:false,displayMode,trust:false});return;}catch{}}el.textContent=tex;}
   function renderExpression(el,tex,displayMode=false){renderTex(el,tex,displayMode);}
-
   function renderRichText(el,text){
-    if(!el)return;
-    const value=String(text??'');
-    const ranges=rangesFor(value);
-    el.replaceChildren();
+    if(!el)return;const value=String(text??''),ranges=rangesFor(value);el.replaceChildren();
     if(!ranges.length){el.textContent=value;el.dataset.mathRendered='1';return;}
     let pos=0;
-    for(const r of ranges){
-      if(r.start>pos)el.append(document.createTextNode(value.slice(pos,r.start)));
-      const span=document.createElement('span');span.className='inline-math';
-      renderTex(span,texify(value.slice(r.start,r.end)),false);
-      el.append(span);pos=r.end;
-    }
-    if(pos<value.length)el.append(document.createTextNode(value.slice(pos)));
-    el.dataset.mathRendered='1';
+    for(const r of ranges){if(r.start>pos)el.append(document.createTextNode(value.slice(pos,r.start)));const span=document.createElement('span');span.className='inline-math';renderTex(span,texify(value.slice(r.start,r.end)),false);el.append(span);pos=r.end;}
+    if(pos<value.length)el.append(document.createTextNode(value.slice(pos)));el.dataset.mathRendered='1';
   }
-
-  function renderDataTex(root=document){
-    root.querySelectorAll?.('[data-tex]:not([data-math-rendered])').forEach(el=>{renderTex(el,el.dataset.tex||'',el.dataset.display==='true');el.dataset.mathRendered='1';});
-  }
-
+  function renderDataTex(root=document){root.querySelectorAll?.('[data-tex]:not([data-math-rendered])').forEach(el=>{renderTex(el,el.dataset.tex||'',el.dataset.display==='true');el.dataset.mathRendered='1';});}
   function enhance(root=document){
     renderDataTex(root);
     root.querySelectorAll?.('.skill-name:not([data-math-rendered]),.nesa-detail p:not([data-math-rendered])').forEach(el=>renderRichText(el,el.textContent));
+    root.querySelectorAll?.('.nesa-detail summary').forEach(el=>{if(el.textContent==='View NESA wording')el.textContent='View syllabus wording';});
   }
-
   function start(){
     enhance(document);
-    const observer=new MutationObserver(records=>{
-      for(const record of records){
-        for(const node of record.addedNodes){
-          if(node.nodeType!==1)continue;
-          if(node.matches?.('.skill-name:not([data-math-rendered]),.nesa-detail p:not([data-math-rendered])'))renderRichText(node,node.textContent);
-          enhance(node);
-        }
-      }
-    });
+    const observer=new MutationObserver(records=>{for(const record of records){for(const node of record.addedNodes){if(node.nodeType!==1)continue;if(node.matches?.('.skill-name:not([data-math-rendered]),.nesa-detail p:not([data-math-rendered])'))renderRichText(node,node.textContent);enhance(node);}}});
     observer.observe(document.body,{childList:true,subtree:true});
   }
-
   window.HSCMath={texify,renderExpression,renderRichText,renderDataTex,enhance};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
