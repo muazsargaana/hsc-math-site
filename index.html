@@ -12,128 +12,50 @@
   <link rel="stylesheet" href="resources-extra.css">
   <link rel="stylesheet" href="glyph-fixes.css">
   <link rel="stylesheet" href="performance.css">
+  <link rel="stylesheet" href="product-polish.css">
 </head>
 <body>
-  <div class="page-noise" aria-hidden="true"></div>
-  <div class="cursor-glow" aria-hidden="true"></div>
-  <div class="aurora aurora-a" aria-hidden="true"></div>
-  <div class="aurora aurora-b" aria-hidden="true"></div>
-  <div class="grid-field" aria-hidden="true"></div>
-
+  <div class="page-noise" aria-hidden="true"></div><div class="cursor-glow" aria-hidden="true"></div><div class="aurora aurora-a" aria-hidden="true"></div><div class="aurora aurora-b" aria-hidden="true"></div><div class="grid-field" aria-hidden="true"></div>
   <main class="content-shell">
     <nav class="top-dock" aria-label="Main navigation">
-      <a class="brand" href="/" aria-label="HSC Maths Hub home">
-        <span class="brand-mark"><img src="/favicon.svg" alt="" width="18" height="18"></span>
-        <span>HSC Maths</span>
-      </a>
-      <div class="dock-links">
-        <a class="active" href="/">Resources</a>
-        <a href="/mastery/">Mastery</a>
-        <a href="/performance/">Performance</a>
-      </div>
-      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme">
-        <span class="theme-icon" aria-hidden="true"></span>
-        <span class="theme-label">Light</span>
-      </button>
+      <a class="brand" href="/" aria-label="HSC Maths Hub home"><span class="brand-mark"><img src="/favicon.svg" alt="" width="18" height="18"></span><span>HSC Maths</span></a>
+      <div class="dock-links"><a class="active" href="/">Resources</a><a href="/mastery/">Mastery</a><a href="/performance/">Performance</a><a href="/profile/">Profile</a></div>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme"><span class="theme-icon" aria-hidden="true"></span><span class="theme-label">Light</span></button>
     </nav>
 
     <header class="hero-section">
       <div class="hero-copy">
-        <div class="eyebrow"><span class="live-dot"></span> NSW HSC / EXTENSION MATHEMATICS</div>
-        <h1>Your maths <span>command centre.</span></h1>
-        <p class="hero-lead">Trials, prelim papers, textbooks, topic sets and mastery tracking in one fast workspace.</p>
-        <div class="hero-actions">
-          <button class="primary-action" type="button" data-jump="resources">Browse resources <span>v</span></button>
-          <a class="secondary-action" href="/mastery/">Open mastery tracker <span>-&gt;</span></a>
-        </div>
+        <div class="eyebrow">NSW HSC · EXTENSION MATHEMATICS</div>
+        <h1>HSC Mathematics <span>resources.</span></h1>
+        <p class="hero-lead">Preliminary papers, HSC trials, textbooks, topic sets and notes for Mathematics Extension 1 and Extension 2.</p>
+        <div class="hero-actions"><button class="primary-action" type="button" data-jump="resources">Browse resources <span>v</span></button><a class="secondary-action" href="/mastery/">Mastery tracker <span>-&gt;</span></a></div>
       </div>
-
       <div class="math-stage tilt-card" aria-hidden="true">
-        <div class="stage-grid"></div>
-        <div class="stage-ring ring-one"></div>
-        <div class="stage-ring ring-two"></div>
-        <div class="formula formula-a">e^(i*pi) + 1 = 0</div>
-        <div class="formula formula-b">integral f(x) dx</div>
-        <div class="formula formula-c">z = r(cos(theta) + i sin(theta))</div>
-        <div class="formula formula-d">a = v dv/dx</div>
-        <div class="stage-core">
-          <span class="core-kicker">HSC</span>
-          <strong>3U + 4U</strong>
-          <small>Prelim -&gt; HSC</small>
-        </div>
+        <div class="stage-grid"></div><div class="stage-ring ring-one"></div><div class="stage-ring ring-two"></div>
+        <div class="formula formula-a">e^(i*pi) + 1 = 0</div><div class="formula formula-b">integral f(x) dx</div><div class="formula formula-c">z = r(cos(theta) + i sin(theta))</div><div class="formula formula-d">a = v dv/dx</div>
+        <div class="stage-core"><span class="core-kicker">HSC</span><strong>3U + 4U</strong><small>Prelim -&gt; HSC</small></div>
       </div>
     </header>
 
     <section class="quick-launch" aria-label="Quick course access">
-      <button class="launch-card launch-prelim tilt-card" data-course="Mathematics Extension 1 · Preliminary" type="button">
-        <span class="launch-index">01</span>
-        <span class="launch-chip">YEAR 11</span>
-        <strong>Ext 1 Preliminary</strong>
-        <small>Prelim papers / topic sets / textbooks</small>
-        <span class="launch-meta"><b data-count-course="Mathematics Extension 1 · Preliminary">...</b> resources <i>&gt;</i></span>
-      </button>
-      <button class="launch-card launch-ext1 tilt-card" data-course="Mathematics Extension 1" type="button">
-        <span class="launch-index">02</span>
-        <span class="launch-chip">YEAR 12</span>
-        <strong>Extension 1 HSC</strong>
-        <small>Trials / internals / notes / textbooks</small>
-        <span class="launch-meta"><b data-count-course="Mathematics Extension 1">...</b> resources <i>&gt;</i></span>
-      </button>
-      <button class="launch-card launch-ext2 tilt-card" data-course="Mathematics Extension 2" type="button">
-        <span class="launch-index">03</span>
-        <span class="launch-chip">YEAR 12</span>
-        <strong>Extension 2 HSC</strong>
-        <small>Trials / topic sets / mechanics / complex</small>
-        <span class="launch-meta"><b data-count-course="Mathematics Extension 2">...</b> resources <i>&gt;</i></span>
-      </button>
-      <button class="launch-card launch-shared tilt-card" data-course="Shared Resources" type="button">
-        <span class="launch-index">04</span>
-        <span class="launch-chip">LIBRARY</span>
-        <strong>Shared Resources</strong>
-        <small>Cross-course textbook libraries</small>
-        <span class="launch-meta"><b data-count-course="Shared Resources">...</b> resources <i>&gt;</i></span>
-      </button>
+      <button class="launch-card launch-prelim tilt-card" data-course="Mathematics Extension 1 · Preliminary" type="button"><span class="launch-index">01</span><span class="launch-chip">YEAR 11</span><strong>Ext 1 Preliminary</strong><small>Prelim papers / topic sets / textbooks</small><span class="launch-meta"><b data-count-course="Mathematics Extension 1 · Preliminary">...</b> resources <i>&gt;</i></span></button>
+      <button class="launch-card launch-ext1 tilt-card" data-course="Mathematics Extension 1" type="button"><span class="launch-index">02</span><span class="launch-chip">YEAR 12</span><strong>Extension 1 HSC</strong><small>Trials / internals / notes / textbooks</small><span class="launch-meta"><b data-count-course="Mathematics Extension 1">...</b> resources <i>&gt;</i></span></button>
+      <button class="launch-card launch-ext2 tilt-card" data-course="Mathematics Extension 2" type="button"><span class="launch-index">03</span><span class="launch-chip">YEAR 12</span><strong>Extension 2 HSC</strong><small>Trials / topic sets / mechanics / complex</small><span class="launch-meta"><b data-count-course="Mathematics Extension 2">...</b> resources <i>&gt;</i></span></button>
+      <button class="launch-card launch-shared tilt-card" data-course="Shared Resources" type="button"><span class="launch-index">04</span><span class="launch-chip">LIBRARY</span><strong>Shared Resources</strong><small>Cross-course textbook libraries</small><span class="launch-meta"><b data-count-course="Shared Resources">...</b> resources <i>&gt;</i></span></button>
     </section>
 
     <section id="resources" class="resource-workspace">
-      <div class="workspace-heading">
-        <div>
-          <span class="section-kicker">RESOURCE INDEX</span>
-          <h2>Find exactly what you need.</h2>
-        </div>
-        <span id="result-count" class="result-count"></span>
-      </div>
-
+      <div class="workspace-heading"><div><span class="section-kicker">RESOURCE INDEX</span><h2>Find a resource</h2></div><span id="result-count" class="result-count"></span></div>
       <div class="control-bar">
-        <div class="quick-filter" aria-label="Course filter">
-          <span class="control-label">Course</span>
-          <div id="course-filter" class="segmented"></div>
-        </div>
-        <div class="quick-filter" aria-label="Resource type filter">
-          <span class="control-label">Resource type</span>
-          <div id="type-filter" class="segmented"></div>
-        </div>
-        <div id="source-filter-wrap" class="quick-filter source-filter-wrap hidden-control">
-          <label class="control-label" for="source-filter">Source</label>
-          <select id="source-filter"></select>
-        </div>
+        <div class="quick-filter" aria-label="Course filter"><span class="control-label">Course</span><div id="course-filter" class="segmented"></div></div>
+        <div class="quick-filter" aria-label="Resource type filter"><span class="control-label">Resource type</span><div id="type-filter" class="segmented"></div></div>
+        <div id="source-filter-wrap" class="quick-filter source-filter-wrap hidden-control"><label class="control-label" for="source-filter">Source</label><select id="source-filter"></select></div>
         <button id="clear-view" class="clear-view hidden-control" type="button">Reset view</button>
       </div>
-
-      <div class="toolbar">
-        <div class="search-wrap">
-          <span class="search-mark" aria-hidden="true"></span>
-          <input id="search" type="search" placeholder="Search papers, textbooks, schools, topics..." autocomplete="off">
-          <span class="search-hint">Ctrl K</span>
-        </div>
-      </div>
-
+      <div class="toolbar"><div class="search-wrap"><span class="search-mark" aria-hidden="true"></span><input id="search" type="search" placeholder="Search papers, textbooks, schools, topics..." autocomplete="off"><span class="search-hint">Ctrl K</span></div></div>
       <div id="resource-tree"></div>
     </section>
   </main>
-
-  <script src="resources.js"></script>
-  <script src="external-resources.js"></script>
-  <script src="script.js"></script>
+  <script src="resources.js"></script><script src="external-resources.js"></script><script src="script.js"></script>
 </body>
 </html>
