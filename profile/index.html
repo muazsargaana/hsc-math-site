@@ -12,14 +12,15 @@
   <link rel="stylesheet" href="../performance.css">
   <link rel="stylesheet" href="../product-polish.css">
   <link rel="stylesheet" href="../auth.css">
+  <link rel="stylesheet" href="../account-ui.css">
 </head>
 <body>
   <div class="aurora aurora-a" aria-hidden="true"></div><div class="aurora aurora-b" aria-hidden="true"></div><div class="grid-field" aria-hidden="true"></div>
   <main class="content-shell">
     <nav class="top-dock" aria-label="Main navigation">
       <a class="brand" href="/"><img class="brand-logo" src="../favicon.svg" alt=""><span>HSC Maths</span></a>
-      <div class="dock-links"><a href="/">Resources</a><a href="/mastery/">Mastery</a><a href="/performance/">Performance</a><a class="active" href="/profile/">Account</a></div>
-      <button id="theme-toggle" class="theme-toggle" type="button"><span class="theme-icon"></span><span class="theme-label">Light</span></button>
+      <div class="dock-links"><a href="/">Resources</a><a href="/mastery/">Mastery</a><a href="/performance/">Performance</a></div>
+      <div style="display:flex;align-items:center;gap:8px"><a id="nav-account-link" class="nav-account-link" href="/profile/"><span id="nav-account-text">Account</span></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme"><span class="theme-icon"></span><span class="theme-label">Light</span></button></div>
     </nav>
 
     <header class="plain-hero"><span class="section-kicker">ACCOUNT</span><h1>Your setup.</h1><p>Your school, maths courses and saved progress follow this account.</p></header>
@@ -57,5 +58,7 @@
   <script src="../cloud-sync.js"></script>
   <script src="../school-autocomplete.js"></script>
   <script src="../profile.js"></script>
+  <script src="../home-auth.js"></script>
+  <script src="../cloud-hydrate.js"></script>
 </body>
 </html>
