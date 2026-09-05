@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mastery Tracker · Math Resources</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="top-rule"></div>
+  <main class="content-shell">
+    <header class="page-header">
+      <div class="header-row">
+        <div>
+          <nav class="site-nav" aria-label="Main navigation">
+            <a href="/">Resources</a>
+            <a class="active" href="/mastery/">Mastery</a>
+          </nav>
+          <h1>Mastery Tracker</h1>
+          <p class="subtitle">NSW HSC Mathematics · Extension 1 &amp; Extension 2</p>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme">
+          <span class="theme-icon" aria-hidden="true"></span>
+          <span class="theme-label">Light</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="mastery-overview" aria-label="Overall mastery summary">
+      <div><strong id="overall-green">0%</strong><span>HSC-ready</span></div>
+      <div><strong id="overall-red">0</strong><span>Weak</span></div>
+      <div><strong id="overall-yellow">0</strong><span>Inconsistent</span></div>
+      <div><strong id="overall-remaining">0</strong><span>Remaining</span></div>
+    </section>
+
+    <div class="control-bar mastery-controls">
+      <div class="quick-filter"><span class="control-label">Course</span><div id="subject-filter" class="segmented"></div></div>
+      <div class="quick-filter"><span class="control-label">Year</span><div id="year-filter" class="segmented"></div></div>
+      <div class="quick-filter">
+        <span class="control-label">Status</span>
+        <select id="status-filter">
+          <option value="">Show all</option>
+          <option value="red">Red · Weak</option>
+          <option value="yellow">Yellow · Inconsistent</option>
+          <option value="green">Green · HSC-ready</option>
+          <option value="blue">Blue · Learning</option>
+          <option value="grey">Grey · Not started</option>
+        </select>
+      </div>
+      <button id="clear-mastery-view" class="clear-view" type="button">Clear view</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-mark">⌕</span>
+        <input id="mastery-search" type="search" placeholder="Search syllabus skills" autocomplete="off">
+      </div>
+      <span id="mastery-result-count" class="result-count"></span>
+    </div>
+
+    <div class="status-key" aria-label="Traffic light status key">
+      <span><i class="status-dot grey"></i>Not started</span>
+      <span><i class="status-dot blue"></i>Learning</span>
+      <span><i class="status-dot red"></i>Weak</span>
+      <span><i class="status-dot yellow"></i>Inconsistent</span>
+      <span><i class="status-dot green"></i>HSC-ready</span>
+    </div>
+
+    <div id="mastery-tree"></div>
+  </main>
+
+  <script src="../mastery-data-1.js"></script>
+  <script src="../mastery-data-2.js"></script>
+  <script src="../mastery-data-3.js"></script>
+  <script src="../mastery-data-4.js"></script>
+  <script src="../mastery.js"></script>
+</body>
+</html>
