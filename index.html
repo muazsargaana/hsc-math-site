@@ -10,18 +10,24 @@
 </head>
 
 <body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
   <div class="top-rule"></div>
 
   <main class="content-shell">
     <header class="page-header">
       <div class="header-row">
-        <div>
+        <div class="hero-copy">
           <nav class="site-nav" aria-label="Main navigation">
             <a class="active" href="/">Resources</a>
             <a href="/mastery/">Mastery</a>
           </nav>
-          <h1>Math Resources</h1>
+          <div class="eyebrow">HSC MATHS HUB</div>
+          <h1>Everything you need.<br><span>Nothing you don’t.</span></h1>
           <p class="subtitle">NSW HSC Mathematics · Extension 1 &amp; Extension 2</p>
+          <div class="hero-tags" aria-hidden="true">
+            <span>Trials</span><span>Textbooks</span><span>Topic sets</span><span>Notes</span>
+          </div>
         </div>
 
         <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch colour theme">
@@ -31,34 +37,37 @@
       </div>
     </header>
 
-    <div class="control-bar">
-      <div class="quick-filter" aria-label="Course filter">
-        <span class="control-label">Course</span>
-        <div id="course-filter" class="segmented"></div>
+    <section class="resource-panel">
+      <div class="control-bar">
+        <div class="quick-filter" aria-label="Course filter">
+          <span class="control-label">Course</span>
+          <div id="course-filter" class="segmented"></div>
+        </div>
+
+        <div class="quick-filter" aria-label="Resource type filter">
+          <span class="control-label">Show</span>
+          <div id="type-filter" class="segmented"></div>
+        </div>
+
+        <div id="source-filter-wrap" class="quick-filter source-filter-wrap hidden-control">
+          <label class="control-label" for="source-filter">Source</label>
+          <select id="source-filter"></select>
+        </div>
+
+        <button id="clear-view" class="clear-view hidden-control" type="button">Clear view</button>
       </div>
 
-      <div class="quick-filter" aria-label="Resource type filter">
-        <span class="control-label">Show</span>
-        <div id="type-filter" class="segmented"></div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-mark">⌕</span>
+          <input id="search" type="search" placeholder="Search papers, textbooks, schools, topics" autocomplete="off">
+          <span class="search-hint">⌘ K</span>
+        </div>
+        <span id="result-count" class="result-count"></span>
       </div>
 
-      <div id="source-filter-wrap" class="quick-filter source-filter-wrap hidden-control">
-        <label class="control-label" for="source-filter">Source</label>
-        <select id="source-filter"></select>
-      </div>
-
-      <button id="clear-view" class="clear-view hidden-control" type="button">Clear view</button>
-    </div>
-
-    <div class="toolbar">
-      <div class="search-wrap">
-        <span class="search-mark">⌕</span>
-        <input id="search" type="search" placeholder="Search papers, textbooks, schools, topics" autocomplete="off">
-      </div>
-      <span id="result-count" class="result-count"></span>
-    </div>
-
-    <div id="resource-tree"></div>
+      <div id="resource-tree"></div>
+    </section>
   </main>
 
   <script src="resources.js"></script>
