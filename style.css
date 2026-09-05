@@ -59,7 +59,7 @@ button, input, select { font: inherit; }
 
 .content-shell {
   width: min(1210px, 90vw);
-  margin: 50px auto 78px;
+  margin: 78px auto 78px;
 }
 
 .page-header {
@@ -161,7 +161,7 @@ h1 {
 
 @media (max-width: 1000px) { .content-shell { width: 92%; } }
 @media (max-width: 700px) {
-  .content-shell { width: 94%; margin-top: 30px; }
+  .content-shell { width: 94%; margin-top: 42px; }
   .header-row { gap: 14px; }
   h1 { font-size: 34px; }
   .subtitle { margin-top: 13px; }
