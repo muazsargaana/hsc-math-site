@@ -3,23 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HSC Mathematics Resources</title>
+  <title>HSC Maths Archive</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <main class="container">
-    <h1>HSC Mathematics Resources</h1>
+  <div class="page-shell">
+    <aside class="filter-panel" id="filter-panel">
+      <div class="filter-head">
+        <div>
+          <div class="filter-kicker">3U / 4U</div>
+          <h2>Filter</h2>
+        </div>
+        <button id="reset-filters" class="text-button" type="button">Reset</button>
+      </div>
 
-    <input
-      id="search"
-      type="search"
-      placeholder="Search resources..."
-      autocomplete="off"
-    >
+      <div id="filter-groups"></div>
+    </aside>
 
-    <div id="resource-tree"></div>
-  </main>
+    <main class="content">
+      <header class="page-header">
+        <h1>HSC Maths Archive</h1>
+      </header>
+
+      <div class="search-row">
+        <input
+          id="search"
+          type="search"
+          placeholder="Search papers, schools, topics..."
+          autocomplete="off"
+        >
+        <span id="result-count" class="result-count"></span>
+      </div>
+
+      <div id="resource-tree"></div>
+    </main>
+  </div>
 
   <script src="resources.js"></script>
   <script src="script.js"></script>
