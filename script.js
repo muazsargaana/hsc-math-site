@@ -1,12 +1,11 @@
 const treeContainer = document.getElementById("resource-tree");
 const searchInput = document.getElementById("search");
-const filterGroups = document.getElementById("filter-groups");
-const resetFiltersButton = document.getElementById("reset-filters");
 const resultCount = document.getElementById("result-count");
-const collapseFiltersButton = document.getElementById("collapse-filters");
-const showFiltersButton = document.getElementById("show-filters");
-const pageShell = document.querySelector(".page-shell");
-const activeFilterCount = document.getElementById("active-filter-count");
+const courseFilter = document.getElementById("course-filter");
+const typeFilter = document.getElementById("type-filter");
+const sourceFilterWrap = document.getElementById("source-filter-wrap");
+const sourceFilter = document.getElementById("source-filter");
+const clearViewButton = document.getElementById("clear-view");
 
 const MAIN_CATEGORY_ORDER = [
   "Organisation Trial Papers",
@@ -17,39 +16,39 @@ const MAIN_CATEGORY_ORDER = [
 
 const TRIAL_ORDER = {
   "Mathematics Extension 1": [
-    "CSSA",
-    "Independent",
-    "NEAP",
-    "PEM",
-    "S&G",
-    "QATs",
-    "Western Mathematics Exams",
-    "ACE",
-    "Total Education",
-    "Trial Maths"
+    "CSSA", "Independent", "NEAP", "PEM", "S&G", "QATs",
+    "Western Mathematics Exams", "ACE", "Total Education", "Trial Maths"
   ],
   "Mathematics Extension 2": [
-    "CSSA",
-    "Independent",
-    "NEAP",
-    "PEM",
-    "ACE",
-    "S&G",
-    "MathsBank",
-    "ConquerHSC"
+    "CSSA", "Independent", "NEAP", "PEM", "ACE", "S&G",
+    "MathsBank", "ConquerHSC"
   ]
 };
 
-const FILTER_SECTIONS = [
-  { id: "courses", title: "Course" },
-  { id: "categories", title: "Resource type" },
-  { id: "trials", title: "Trial providers", category: "Organisation Trial Papers" },
-  { id: "internals", title: "Internal schools", category: "Internal Assessments" },
-  { id: "topics", title: "Topic collections", category: "Q's By Topic" }
+const COURSE_OPTIONS = [
+  { value: "", label: "All" },
+  { value: "Mathematics Extension 1", label: "3U" },
+  { value: "Mathematics Extension 2", label: "4U" }
 ];
 
-const filterState = {};
-const filterDefaults = {};
+const TYPE_OPTIONS = [
+  { value: "", label: "Everything" },
+  { value: "Organisation Trial Papers", label: "Trial papers" },
+  { value: "Internal Assessments", label: "Internals" },
+  { value: "Q's By Topic", label: "By topic" },
+  { value: "Notes", label: "Notes" }
+];
+
+const SOURCE_FILTER_TYPES = new Set([
+  "Organisation Trial Papers",
+  "Q's By Topic"
+]);
+
+const viewState = {
+  course: "",
+  type: "",
+  source: ""
+};
 
 function naturalCompare(a, b) {
   return a.localeCompare(b, undefined, {
@@ -70,48 +69,64 @@ function orderResources() {
       return aRank - bRank || naturalCompare(a.name, b.name);
     });
 
-    const trialFolder = course.children.find(
+    const trials = course.children.find(
       child => child.name === "Organisation Trial Papers"
     );
 
-    if (trialFolder) {
-      const preferredOrder = TRIAL_ORDER[course.name] || [];
-      const trialRank = new Map(
-        preferredOrder.map((name, index) => [name, index])
-      );
+    if (!trials) return;
 
-      trialFolder.children.sort((a, b) => {
-        const aRank = trialRank.has(a.name) ? trialRank.get(a.name) : 999;
-        const bRank = trialRank.has(b.name) ? trialRank.get(b.name) : 999;
-        return aRank - bRank || naturalCompare(a.name, b.name);
-      });
-    }
+    const preferred = TRIAL_ORDER[course.name] || [];
+    const rank = new Map(preferred.map((name, index) => [name, index]));
+
+    trials.children.sort((a, b) => {
+      const aRank = rank.has(a.name) ? rank.get(a.name) : 999;
+      const bRank = rank.has(b.name) ? rank.get(b.name) : 999;
+      return aRank - bRank || naturalCompare(a.name, b.name);
+    });
   });
 }
 
-function unique(values) {
-  return [...new Set(values)].sort(naturalCompare);
+function renderSegmented(container, options, selectedValue, onSelect) {
+  container.innerHTML = "";
+
+  options.forEach(option => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "segment-button";
+    button.textContent = option.label;
+    button.classList.toggle("active", option.value === selectedValue);
+    button.setAttribute("aria-pressed", option.value === selectedValue ? "true" : "false");
+
+    button.addEventListener("click", () => onSelect(option.value));
+    container.appendChild(button);
+  });
 }
 
-function getCategorySources(categoryName) {
-  const values = [];
+function sourceOptionsForCurrentView() {
+  if (!SOURCE_FILTER_TYPES.has(viewState.type)) return [];
+
+  const names = [];
 
   resources.forEach(course => {
-    const category = course.children.find(child => child.name === categoryName);
+    if (viewState.course && course.name !== viewState.course) return;
+
+    const category = course.children.find(child => child.name === viewState.type);
     if (!category) return;
 
     (category.children || []).forEach(child => {
-      if (child.type === "folder") values.push(child.name);
+      if (child.type === "folder") names.push(child.name);
     });
   });
 
-  if (categoryName === "Organisation Trial Papers") {
+  const unique = [...new Set(names)];
+
+  if (viewState.type === "Organisation Trial Papers") {
     const preferred = [
       ...TRIAL_ORDER["Mathematics Extension 1"],
       ...TRIAL_ORDER["Mathematics Extension 2"]
-    ].filter((name, index, arr) => arr.indexOf(name) === index);
+    ].filter((name, index, array) => array.indexOf(name) === index);
 
-    return unique(values).sort((a, b) => {
+    return unique.sort((a, b) => {
       const ai = preferred.indexOf(a);
       const bi = preferred.indexOf(b);
       const ar = ai === -1 ? 999 : ai;
@@ -120,148 +135,121 @@ function getCategorySources(categoryName) {
     });
   }
 
-  return unique(values);
+  return unique.sort(naturalCompare);
 }
 
-function initialiseFilterState() {
-  filterDefaults.courses = resources.map(course => course.name);
-  filterDefaults.categories = [...MAIN_CATEGORY_ORDER];
-  filterDefaults.trials = getCategorySources("Organisation Trial Papers");
-  filterDefaults.internals = getCategorySources("Internal Assessments");
-  filterDefaults.topics = getCategorySources("Q's By Topic");
-
-  Object.entries(filterDefaults).forEach(([key, values]) => {
-    filterState[key] = new Set(values);
-  });
-}
-
-function shortCourseName(name) {
-  return name === "Mathematics Extension 1" ? "Extension 1 · 3U" :
-         name === "Mathematics Extension 2" ? "Extension 2 · 4U" : name;
-}
-
-function optionsForSection(section) {
-  if (section.id === "courses") {
-    return resources.map(course => ({ value: course.name, label: shortCourseName(course.name) }));
-  }
-
-  if (section.id === "categories") {
-    return MAIN_CATEGORY_ORDER.map(name => ({ value: name, label: name }));
-  }
-
-  return getCategorySources(section.category).map(name => ({ value: name, label: name }));
-}
-
-function countActiveRestrictions() {
-  let count = 0;
-
-  Object.entries(filterDefaults).forEach(([key, defaults]) => {
-    if (filterState[key].size !== defaults.length) count += 1;
+function renderControls() {
+  renderSegmented(courseFilter, COURSE_OPTIONS, viewState.course, value => {
+    viewState.course = value;
+    viewState.source = "";
+    renderControls();
+    applyView();
   });
 
-  return count;
-}
+  renderSegmented(typeFilter, TYPE_OPTIONS, viewState.type, value => {
+    viewState.type = value;
+    viewState.source = "";
+    renderControls();
+    applyView();
+  });
 
-function updateActiveFilterCount() {
-  const count = countActiveRestrictions();
-  activeFilterCount.textContent = count ? String(count) : "";
-  activeFilterCount.style.display = count ? "inline-block" : "none";
-}
+  const sources = sourceOptionsForCurrentView();
+  const showSource = SOURCE_FILTER_TYPES.has(viewState.type) && sources.length > 0;
+  sourceFilterWrap.classList.toggle("hidden-control", !showSource);
 
-function renderFilters() {
-  filterGroups.innerHTML = "";
+  if (showSource) {
+    sourceFilter.innerHTML = "";
 
-  FILTER_SECTIONS.forEach(section => {
-    const options = optionsForSection(section);
-    if (!options.length) return;
+    const allOption = document.createElement("option");
+    allOption.value = "";
+    allOption.textContent = viewState.type === "Organisation Trial Papers"
+      ? "All providers"
+      : "All collections";
+    sourceFilter.appendChild(allOption);
 
-    const group = document.createElement("section");
-    group.className = "filter-group";
-
-    const header = document.createElement("div");
-    header.className = "filter-group-head";
-
-    const title = document.createElement("h3");
-    title.textContent = section.title;
-
-    const allButton = document.createElement("button");
-    allButton.type = "button";
-    allButton.className = "mini-button";
-    allButton.textContent = "all";
-    allButton.addEventListener("click", () => {
-      filterState[section.id] = new Set(options.map(option => option.value));
-      renderFilters();
-      applyFilters();
+    sources.forEach(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      sourceFilter.appendChild(option);
     });
 
-    header.appendChild(title);
-    header.appendChild(allButton);
-    group.appendChild(header);
+    if (sources.includes(viewState.source)) {
+      sourceFilter.value = viewState.source;
+    } else {
+      viewState.source = "";
+      sourceFilter.value = "";
+    }
+  }
 
-    const list = document.createElement("div");
-    list.className = "check-list";
-
-    options.forEach(option => {
-      const label = document.createElement("label");
-      label.className = "check-row";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = filterState[section.id].has(option.value);
-      checkbox.addEventListener("change", () => {
-        if (checkbox.checked) {
-          filterState[section.id].add(option.value);
-        } else {
-          filterState[section.id].delete(option.value);
-        }
-        updateActiveFilterCount();
-        applyFilters();
-      });
-
-      const text = document.createElement("span");
-      text.textContent = option.label;
-
-      label.appendChild(checkbox);
-      label.appendChild(text);
-      list.appendChild(label);
-    });
-
-    group.appendChild(list);
-    filterGroups.appendChild(group);
-  });
-
-  updateActiveFilterCount();
+  clearViewButton.classList.toggle(
+    "hidden-control",
+    !viewState.course && !viewState.type && !viewState.source
+  );
 }
 
-function cloneFilteredNode(node, context = {}) {
+sourceFilter.addEventListener("change", () => {
+  viewState.source = sourceFilter.value;
+  renderControls();
+  applyView();
+});
+
+clearViewButton.addEventListener("click", () => {
+  viewState.course = "";
+  viewState.type = "";
+  viewState.source = "";
+  searchInput.value = "";
+  renderControls();
+  applyView();
+});
+
+function cloneForView(node, context = {}) {
   if (node.type === "file") return { ...node };
 
-  const nextContext = { ...context };
-
   if (!context.course) {
-    nextContext.course = node.name;
-    if (!filterState.courses.has(node.name)) return null;
-  } else if (!context.category) {
-    nextContext.category = node.name;
-    if (!filterState.categories.has(node.name)) return null;
-  } else if (!context.source) {
-    nextContext.source = node.name;
+    if (viewState.course && node.name !== viewState.course) return null;
 
-    if (context.category === "Organisation Trial Papers" && !filterState.trials.has(node.name)) return null;
-    if (context.category === "Internal Assessments" && !filterState.internals.has(node.name)) return null;
-    if (context.category === "Q's By Topic" && !filterState.topics.has(node.name)) return null;
+    const children = (node.children || [])
+      .map(child => cloneForView(child, { course: node.name }))
+      .filter(Boolean);
+
+    return children.length ? { ...node, children } : null;
+  }
+
+  if (!context.category) {
+    if (viewState.type && node.name !== viewState.type) return null;
+
+    const children = (node.children || [])
+      .map(child => cloneForView(child, {
+        course: context.course,
+        category: node.name
+      }))
+      .filter(Boolean);
+
+    return children.length ? { ...node, children } : null;
+  }
+
+  if (
+    viewState.source &&
+    context.category === viewState.type &&
+    SOURCE_FILTER_TYPES.has(context.category) &&
+    !context.source
+  ) {
+    if (node.name !== viewState.source) return null;
   }
 
   const children = (node.children || [])
-    .map(child => cloneFilteredNode(child, nextContext))
+    .map(child => cloneForView(child, {
+      ...context,
+      source: context.source || node.name
+    }))
     .filter(Boolean);
 
-  if (!children.length) return null;
-  return { ...node, children };
+  return children.length ? { ...node, children } : null;
 }
 
-function getFilteredResources() {
-  return resources.map(course => cloneFilteredNode(course)).filter(Boolean);
+function getVisibleResources() {
+  return resources.map(course => cloneForView(course)).filter(Boolean);
 }
 
 function createNode(node, depth = 0, path = []) {
@@ -279,7 +267,6 @@ function createNode(node, depth = 0, path = []) {
 
   const folder = document.createElement("div");
   folder.className = "folder";
-  folder.dataset.depth = depth;
 
   if (depth === 0) folder.classList.add("course-folder");
   if (depth === 1 && MAIN_CATEGORY_ORDER.includes(node.name)) {
@@ -289,11 +276,18 @@ function createNode(node, depth = 0, path = []) {
   const title = document.createElement("button");
   title.type = "button";
   title.className = "folder-title";
-  title.setAttribute("aria-expanded", "false");
+
+  const autoOpen = Boolean(
+    (viewState.type && depth <= 1) ||
+    (viewState.source && depth <= 2)
+  );
+
+  title.setAttribute("aria-expanded", autoOpen ? "true" : "false");
 
   const arrow = document.createElement("span");
   arrow.className = "folder-arrow";
   arrow.textContent = "›";
+  arrow.classList.toggle("open", autoOpen);
 
   const label = document.createElement("span");
   label.className = "folder-label";
@@ -303,7 +297,8 @@ function createNode(node, depth = 0, path = []) {
   title.appendChild(label);
 
   const children = document.createElement("div");
-  children.className = "children hidden";
+  children.className = "children";
+  if (!autoOpen) children.classList.add("hidden");
 
   (node.children || []).forEach(child => {
     children.appendChild(createNode(child, depth + 1, [...path, node.name]));
@@ -336,62 +331,51 @@ function countFiles(nodes) {
   return count;
 }
 
-function renderTree(nodes = getFilteredResources()) {
+function renderTree() {
+  const nodes = getVisibleResources();
   treeContainer.innerHTML = "";
-
-  nodes.forEach(node => {
-    treeContainer.appendChild(createNode(node));
-  });
-
+  nodes.forEach(node => treeContainer.appendChild(createNode(node)));
   resultCount.textContent = `${countFiles(nodes)} files`;
 }
 
-function searchNode(element, query) {
+function searchNode(element, terms) {
   if (element.classList.contains("file-link")) {
-    const terms = query.split(/\s+/).filter(Boolean);
     const haystack = `${element.dataset.name} ${element.dataset.path}`;
     const matches = terms.every(term => haystack.includes(term));
-
     element.style.display = matches ? "" : "none";
     return matches;
   }
 
-  if (element.classList.contains("folder")) {
-    const children = element.querySelector(":scope > .children");
-    const title = element.querySelector(":scope > .folder-title");
-    const label = title.querySelector(".folder-label");
-    const folderName = label.textContent.toLowerCase();
-    const terms = query.split(/\s+/).filter(Boolean);
-    const folderMatches = terms.every(term => folderName.includes(term));
+  if (!element.classList.contains("folder")) return false;
 
-    let hasMatch = false;
+  const children = element.querySelector(":scope > .children");
+  const title = element.querySelector(":scope > .folder-title");
+  const label = title.querySelector(".folder-label").textContent.toLowerCase();
+  const ownMatch = terms.every(term => label.includes(term));
+  let childMatch = false;
 
-    [...children.children].forEach(child => {
-      if (searchNode(child, query)) hasMatch = true;
-    });
+  [...children.children].forEach(child => {
+    if (searchNode(child, terms)) childMatch = true;
+  });
 
-    const matches = folderMatches || hasMatch;
-    element.style.display = matches ? "" : "none";
+  const matches = ownMatch || childMatch;
+  element.style.display = matches ? "" : "none";
 
-    if (query && matches) {
-      children.classList.remove("hidden");
-      title.setAttribute("aria-expanded", "true");
-      title.querySelector(".folder-arrow").classList.add("open");
-    }
-
-    return matches;
+  if (matches) {
+    children.classList.remove("hidden");
+    title.setAttribute("aria-expanded", "true");
+    title.querySelector(".folder-arrow").classList.add("open");
   }
 
-  return false;
+  return matches;
 }
 
 function applySearch() {
   const query = searchInput.value.trim().toLowerCase();
   if (!query) return;
 
-  [...treeContainer.children].forEach(node => {
-    searchNode(node, query);
-  });
+  const terms = query.split(/\s+/).filter(Boolean);
+  [...treeContainer.children].forEach(node => searchNode(node, terms));
 
   const visibleFiles = [...document.querySelectorAll(".file-link")]
     .filter(link => link.style.display !== "none").length;
@@ -399,32 +383,13 @@ function applySearch() {
   resultCount.textContent = `${visibleFiles} matches`;
 }
 
-function applyFilters() {
+function applyView() {
   renderTree();
   applySearch();
 }
 
-searchInput.addEventListener("input", () => {
-  renderTree();
-  applySearch();
-});
-
-resetFiltersButton.addEventListener("click", () => {
-  initialiseFilterState();
-  searchInput.value = "";
-  renderFilters();
-  renderTree();
-});
-
-collapseFiltersButton.addEventListener("click", () => {
-  pageShell.classList.add("filters-collapsed");
-});
-
-showFiltersButton.addEventListener("click", () => {
-  pageShell.classList.remove("filters-collapsed");
-});
+searchInput.addEventListener("input", applyView);
 
 orderResources();
-initialiseFilterState();
-renderFilters();
-renderTree();
+renderControls();
+applyView();
