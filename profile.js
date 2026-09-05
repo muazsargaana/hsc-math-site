@@ -8,6 +8,7 @@ const themeLabel=themeToggle.querySelector('.theme-label');
 const signedOutPanel=document.getElementById('signed-out-panel');
 const signedInPanel=document.getElementById('signed-in-panel');
 const accountStatus=document.getElementById('account-status');
+const accountHeading=document.getElementById('account-heading');
 const accountName=document.getElementById('account-name');
 const accountEmail=document.getElementById('account-email');
 const accountAvatar=document.getElementById('account-avatar');
@@ -30,18 +31,18 @@ ext2.addEventListener('change',()=>{profile.subjects=profile.subjects||{};profil
 async function renderAccount(){
   try{
     const info=await HSCAuth.init();
-    if(!info.configured){accountStatus.textContent='SETUP';accountStatus.className='status-chip local';signedOutPanel.hidden=false;signedInPanel.hidden=true;return;}
+    if(!info.configured){accountHeading.textContent='Account unavailable';accountStatus.textContent='SETUP';accountStatus.className='status-chip local';signedOutPanel.hidden=false;signedInPanel.hidden=true;return;}
     const session=await HSCAuth.getSession();const user=session?.user||null;
     signedOutPanel.hidden=Boolean(user);signedInPanel.hidden=!user;
-    if(!user){accountStatus.textContent='SIGNED OUT';accountStatus.className='status-chip local';return;}
-    accountStatus.textContent='SIGNED IN';accountStatus.className='status-chip';
+    if(!user){accountHeading.textContent='Sign in';accountStatus.textContent='SIGNED OUT';accountStatus.className='status-chip local';return;}
     const display=user.user_metadata?.display_name||user.email?.split('@')[0]||'Account';
+    accountHeading.textContent='Your account';accountStatus.textContent='SIGNED IN';accountStatus.className='status-chip';
     accountName.textContent=display;accountEmail.textContent=user.email||'';accountAvatar.textContent=display.trim().charAt(0).toUpperCase()||'A';
-  }catch{accountStatus.textContent='OFFLINE';}
+  }catch{accountHeading.textContent='Account';accountStatus.textContent='OFFLINE';signedOutPanel.hidden=false;signedInPanel.hidden=true;}
 }
 
 document.getElementById('sync-now')?.addEventListener('click',async()=>{try{syncState.textContent='Syncing...';await HSCCloud.migrateLocalToCloud();syncState.textContent='Synced just now.';}catch(e){syncState.textContent=e.message||'Sync failed.';}});
-document.getElementById('sign-out')?.addEventListener('click',async()=>{await HSCAuth.signOut();location.href='/login/';});
+document.getElementById('sign-out')?.addEventListener('click',async()=>{await HSCAuth.signOut();location.href='/';});
 window.addEventListener('hsc-cloud-sync',e=>{if(e.detail.status==='saved')syncState.textContent='Saved to cloud.';if(e.detail.status==='error')syncState.textContent='Cloud sync error.';});
 window.addEventListener('hsc-auth-change',renderAccount);
 
