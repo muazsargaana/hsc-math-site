@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060914">
+  <title>Performance - HSC Maths Hub</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../mastery.css">
+  <link rel="stylesheet" href="../glyph-fixes.css">
+  <link rel="stylesheet" href="../performance.css">
+</head>
+<body>
+  <div class="page-noise" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <div class="aurora aurora-a" aria-hidden="true"></div>
+  <div class="aurora aurora-b" aria-hidden="true"></div>
+  <div class="grid-field" aria-hidden="true"></div>
+
+  <main class="content-shell">
+    <nav class="top-dock" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="HSC Maths Hub home"><img class="brand-logo" src="../favicon.svg" alt=""><span>HSC Maths</span></a>
+      <div class="dock-links"><a href="/">Resources</a><a href="/mastery/">Mastery</a><a class="active" href="/performance/">Performance</a></div>
+      <button id="theme-toggle" class="theme-toggle" type="button"><span class="theme-icon" aria-hidden="true"></span><span class="theme-label">Light</span></button>
+    </nav>
+
+    <header class="performance-hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span> ASSESSMENT + HSC PERFORMANCE</div>
+        <h1>Know your numbers <span>before results day.</span></h1>
+        <p class="hero-lead">Track every weighted assessment, calculate exactly where your internal mark sits, then model a realistic HSC band using NESA's actual HSC mark rules.</p>
+      </div>
+      <div class="performance-orbit" aria-hidden="true">
+        <div class="orbit-score"><span>LIVE</span><strong id="hero-course-mark">--</strong><small>weighted internal</small></div>
+        <div class="orbit-chip chip-a">WEIGHTS</div><div class="orbit-chip chip-b">TARGETS</div><div class="orbit-chip chip-c">E1-E4</div>
+      </div>
+    </header>
+
+    <section class="performance-shell">
+      <div class="performance-heading">
+        <div><span class="section-kicker">COURSE</span><h2>Assessment tracker</h2></div>
+        <div id="course-tabs" class="segmented performance-tabs"></div>
+      </div>
+
+      <div class="performance-grid">
+        <section class="performance-card task-card">
+          <div class="card-heading"><div><span class="mini-kicker">TASKS</span><h3>Assessment program</h3></div><button id="add-task" class="primary-action compact" type="button">+ Add task</button></div>
+          <div class="task-table-head"><span>Task</span><span>Mark</span><span>Weight</span><span>Contribution</span><span></span></div>
+          <div id="task-list" class="task-list"></div>
+          <div id="weight-warning" class="inline-warning hidden"></div>
+        </section>
+
+        <aside class="performance-card summary-card">
+          <span class="mini-kicker">LIVE POSITION</span>
+          <div class="big-score"><strong id="current-mark">0.0%</strong><span>weighted average on completed tasks</span></div>
+          <div class="metric-list">
+            <div><span>Completed weight</span><strong id="completed-weight">0%</strong></div>
+            <div><span>Remaining weight</span><strong id="remaining-weight">100%</strong></div>
+            <div><span>Locked contribution</span><strong id="locked-contribution">0.0</strong></div>
+            <div><span>Best possible final</span><strong id="best-possible">100.0%</strong></div>
+          </div>
+          <div class="target-box">
+            <label for="target-mark">Target internal mark</label>
+            <div class="target-input"><input id="target-mark" type="number" min="0" max="100" step="0.1" value="90"><span>%</span></div>
+            <p id="target-result">Add completed tasks to calculate what you need.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="band-lab">
+      <div class="performance-heading">
+        <div><span class="section-kicker">HSC BAND LAB</span><h2>Projected E-band, without fake precision.</h2></div>
+        <span class="method-chip">NESA rules + HSCninja context</span>
+      </div>
+
+      <div class="band-grid">
+        <section class="performance-card predictor-card">
+          <div class="predictor-fields">
+            <label><span>Moderated assessment estimate</span><small>Your school raw mark is not the final moderated assessment mark.</small><div class="number-field"><input id="assessment-estimate" type="number" min="0" max="100" step="0.1"><b>/100</b></div></label>
+            <label><span>Estimated HSC exam mark</span><small>Use a realistic estimate from timed HSC-style papers.</small><div class="number-field"><input id="exam-estimate" type="number" min="0" max="100" step="0.1" placeholder="e.g. 86"><b>/100</b></div></label>
+            <label><span>HSCninja school average</span><small>Optional. Enter the recent course average shown for your school.</small><div class="number-field"><input id="school-average" type="number" min="0" max="100" step="0.1" placeholder="optional"><b>/100</b></div></label>
+          </div>
+          <div class="predictor-actions"><button id="use-internal" class="secondary-action compact" type="button">Use current internal as estimate</button><button id="clear-predictor" class="secondary-action compact" type="button">Clear estimate</button></div>
+          <div class="model-warning"><strong>Important:</strong> assessment task marks are aggregated by your school, then NESA moderates the submitted assessment marks. Your HSC mark is the average of the moderated assessment mark and the examination mark. School averages from HSCninja are useful context, not a formula for converting your rank into a final mark.</div>
+        </section>
+
+        <aside class="performance-card band-result-card">
+          <span class="mini-kicker">PROJECTED HSC RESULT</span>
+          <div id="band-badge" class="band-badge neutral">--</div>
+          <strong id="projected-hsc" class="projected-hsc">--</strong>
+          <span class="projected-caption">normalised HSC mark /100</span>
+          <div class="band-scale" aria-label="Extension course HSC bands"><span class="e1">E1<br><b>0-49</b></span><span class="e2">E2<br><b>50-69</b></span><span class="e3">E3<br><b>70-89</b></span><span class="e4">E4<br><b>90-100</b></span></div>
+          <div id="band-analysis" class="band-analysis">Enter an exam estimate to generate a projection.</div>
+        </aside>
+      </div>
+
+      <div class="insight-grid">
+        <div class="insight-card"><span>Exam mark needed for E4</span><strong id="needed-e4">--</strong><small>assuming your moderated assessment estimate is accurate</small></div>
+        <div class="insight-card"><span>Exam mark needed for E3</span><strong id="needed-e3">--</strong><small>minimum normalised HSC mark of 70</small></div>
+        <div class="insight-card"><span>School benchmark delta</span><strong id="school-delta">--</strong><small>projection compared with the HSCninja school average you enter</small></div>
+      </div>
+    </section>
+
+    <section class="methodology performance-card">
+      <div><span class="section-kicker">WHY THIS MODEL</span><h2>What is exact, and what is only an estimate.</h2></div>
+      <div class="method-grid">
+        <p><strong>Exact:</strong> your task calculator uses the published assessment weightings you enter. NESA states that schools aggregate task marks using those published weightings to arrive at the school assessment mark submitted for moderation.</p>
+        <p><strong>Exact:</strong> for HSC courses with an exam, the reported HSC mark is the average of the moderated school assessment mark and the HSC examination mark.</p>
+        <p><strong>Exact:</strong> one-unit Extension courses use E1-E4 bands: E4 = 45-50, E3 = 35-44, E2 = 25-34 and E1 = 0-24. This page displays the equivalent normalised /100 scale.</p>
+        <p><strong>Estimate:</strong> your current raw internal mark cannot by itself predict your moderated assessment mark because moderation depends on your school's HSC examination performance while preserving the submitted rank order. HSCninja school averages and E4 counts therefore provide context, not a deterministic conversion.</p>
+      </div>
+      <div class="source-row"><a href="https://educationstandards.nsw.edu.au/wps/portal/nesa/11-12/Understanding-the-curriculum/assessment/assessment-in-practice/purpose-of-assessment/" target="_blank" rel="noopener noreferrer">NESA assessment aggregation</a><a href="https://www.nsw.gov.au/education-and-training/nesa/hsc/facts-and-figures/glossary" target="_blank" rel="noopener noreferrer">NESA HSC band definitions</a><a href="https://www.hscninja.com/atar-calculator" target="_blank" rel="noopener noreferrer">HSCninja calculator methodology</a></div>
+    </section>
+  </main>
+
+  <script src="../performance.js"></script>
+</body>
+</html>
