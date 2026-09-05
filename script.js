@@ -13,17 +13,19 @@ const MAIN_CATEGORY_ORDER = [
   "Organisation Trial Papers",
   "Internal Assessments",
   "Q's By Topic",
-  "Notes"
+  "Notes",
+  "Textbooks"
 ];
 
 const TRIAL_ORDER = {
   "Mathematics Extension 1": [
     "CSSA", "Independent", "NEAP", "PEM", "S&G", "QATs",
-    "Western Mathematics Exams", "ACE", "Total Education", "Trial Maths"
+    "Western Mathematics Exams", "ACE", "Total Education", "Trial Maths",
+    "Shared Drive Collection"
   ],
   "Mathematics Extension 2": [
     "CSSA", "Independent", "NEAP", "PEM", "ACE", "S&G",
-    "MathsBank", "ConquerHSC"
+    "MathsBank", "ConquerHSC", "Shared Drive Collection"
   ]
 };
 
@@ -38,12 +40,14 @@ const TYPE_OPTIONS = [
   { value: "Organisation Trial Papers", label: "Trial papers" },
   { value: "Internal Assessments", label: "Internals" },
   { value: "Q's By Topic", label: "By topic" },
-  { value: "Notes", label: "Notes" }
+  { value: "Notes", label: "Notes" },
+  { value: "Textbooks", label: "Textbooks" }
 ];
 
 const SOURCE_FILTER_TYPES = new Set([
   "Organisation Trial Papers",
-  "Q's By Topic"
+  "Q's By Topic",
+  "Textbooks"
 ]);
 
 const viewState = {
@@ -54,6 +58,31 @@ const viewState = {
 
 function isHiddenFolder(name) {
   return typeof name === "string" && name.toLowerCase().includes("unknown school");
+}
+
+function mergeExternalResources() {
+  if (typeof externalResources === "undefined" || !Array.isArray(externalResources)) return;
+
+  externalResources.forEach(externalCourse => {
+    const course = resources.find(item => item.name === externalCourse.course);
+    if (!course) return;
+
+    (externalCourse.categories || []).forEach(externalCategory => {
+      let category = (course.children || []).find(item => item.name === externalCategory.name);
+
+      if (!category) {
+        category = {
+          type: "folder",
+          name: externalCategory.name,
+          children: []
+        };
+        course.children.push(category);
+      }
+
+      category.children = category.children || [];
+      category.children.push(...(externalCategory.children || []));
+    });
+  });
 }
 
 function getInitialTheme() {
@@ -97,16 +126,34 @@ function orderResources() {
       child => child.name === "Organisation Trial Papers"
     );
 
-    if (!trials) return;
+    if (trials) {
+      const preferred = TRIAL_ORDER[course.name] || [];
+      const rank = new Map(preferred.map((name, index) => [name, index]));
 
-    const preferred = TRIAL_ORDER[course.name] || [];
-    const rank = new Map(preferred.map((name, index) => [name, index]));
+      trials.children.sort((a, b) => {
+        const aRank = rank.has(a.name) ? rank.get(a.name) : 999;
+        const bRank = rank.has(b.name) ? rank.get(b.name) : 999;
+        return aRank - bRank || naturalCompare(a.name, b.name);
+      });
+    }
 
-    trials.children.sort((a, b) => {
-      const aRank = rank.has(a.name) ? rank.get(a.name) : 999;
-      const bRank = rank.has(b.name) ? rank.get(b.name) : 999;
-      return aRank - bRank || naturalCompare(a.name, b.name);
-    });
+    const textbooks = course.children.find(child => child.name === "Textbooks");
+    if (textbooks) {
+      const order = [
+        "Cambridge",
+        "Fitzpatrick",
+        "Maths in Focus",
+        "New Advanced Mathematics",
+        "Steven Howard",
+        "External Libraries"
+      ];
+      const rank = new Map(order.map((name, index) => [name, index]));
+      textbooks.children.sort((a, b) => {
+        const aRank = rank.has(a.name) ? rank.get(a.name) : 999;
+        const bRank = rank.has(b.name) ? rank.get(b.name) : 999;
+        return aRank - bRank || naturalCompare(a.name, b.name);
+      });
+    }
   });
 }
 
@@ -188,7 +235,9 @@ function renderControls() {
     allOption.value = "";
     allOption.textContent = viewState.type === "Organisation Trial Papers"
       ? "All providers"
-      : "All collections";
+      : viewState.type === "Textbooks"
+        ? "All publishers"
+        : "All collections";
     sourceFilter.appendChild(allOption);
 
     sources.forEach(name => {
@@ -277,6 +326,12 @@ function getVisibleResources() {
   return resources.map(course => cloneForView(course)).filter(Boolean);
 }
 
+function linkKind(url) {
+  if (/drive\.google\.com\/drive\/folders\//i.test(url)) return "LINK";
+  if (/mediafire\.com\/folder\//i.test(url)) return "LINK";
+  return "PDF";
+}
+
 function createNode(node, depth = 0, path = []) {
   if (node.type === "file") {
     const link = document.createElement("a");
@@ -285,6 +340,7 @@ function createNode(node, depth = 0, path = []) {
     link.target = "_blank";
     link.rel = "noopener noreferrer";
     link.textContent = node.name;
+    link.dataset.kind = linkKind(node.url);
     link.dataset.name = node.name.toLowerCase();
     link.dataset.path = [...path, node.name].join(" › ").toLowerCase();
     return link;
@@ -416,6 +472,7 @@ function applyView() {
 searchInput.addEventListener("input", applyView);
 
 applyTheme(getInitialTheme());
+mergeExternalResources();
 orderResources();
 renderControls();
 applyView();
