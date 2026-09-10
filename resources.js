@@ -1417,7 +1417,33 @@ const resources = [
           {
             "type": "folder",
             "name": "Trial Q's by Topic 2",
-            "children": []
+            "children": [
+              {
+                "type": "file",
+                "name": "Calculus Question Bank.pdf",
+                "url": "https://drive.google.com/file/d/1lgrYy8aM9YFvPdzipah2kWc_EtyewGKp/view?usp=drivesdk"
+              },
+              {
+                "type": "file",
+                "name": "Complex Question Bank.pdf",
+                "url": "https://drive.google.com/file/d/1l6_jrOsae-zG-6n8DYFYdF-SFTPyjPQS/view?usp=drivesdk"
+              },
+              {
+                "type": "file",
+                "name": "Mechanics Question Bank.pdf",
+                "url": "https://drive.google.com/file/d/1AB1xwlA2ldVf27OihgD35GcVslQdl04c/view?usp=drivesdk"
+              },
+              {
+                "type": "file",
+                "name": "Proofs Question Bank.pdf",
+                "url": "https://drive.google.com/file/d/1WFsSDtTktfR2wslW_4bRIEAo2aZlOBeV/view?usp=drivesdk"
+              },
+              {
+                "type": "file",
+                "name": "Vectors Question Bank.pdf",
+                "url": "https://drive.google.com/file/d/1CGztG2jdTmtgxNnShtdIy5Blkz7J9Qgn/view?usp=drivesdk"
+              }
+            ]
           }
         ]
       }
