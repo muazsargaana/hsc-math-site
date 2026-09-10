@@ -435,7 +435,7 @@ const resources = [
           },
           {
             "type": "folder",
-            "name": "SmarterMaths Q's by Topic",
+            "name": "SmarterMaths",
             "children": [
               {
                 "type": "folder",
@@ -1319,7 +1319,7 @@ const resources = [
           },
           {
             "type": "folder",
-            "name": "SmarterMaths Q's by Topic (no vectors)",
+            "name": "SmarterMaths (no vectors)",
             "children": [
               {
                 "type": "file",
@@ -1385,17 +1385,12 @@ const resources = [
           },
           {
             "type": "folder",
-            "name": "Trial Q's by Topic",
+            "name": "Trial Q's by Topic 1",
             "children": [
               {
                 "type": "file",
                 "name": "Calculus - Trial Q's by Topic.pdf",
                 "url": "https://drive.google.com/file/d/1Wjebn_4vZabrUWWD5lvM3B5yLPsN6XHN/view?usp=drivesdk"
-              },
-              {
-                "type": "file",
-                "name": "Complex Numbers - 2020 Trial Q's by Syllabus Dot Point.pdf",
-                "url": "https://drive.google.com/file/d/1jI_Qhca-i6ggbXrpu9GuR4cXMOAiCJ16/view?usp=drivesdk"
               },
               {
                 "type": "file",
@@ -1418,6 +1413,11 @@ const resources = [
                 "url": "https://drive.google.com/file/d/1ATeide6-UA1AISgwofwueBMgZ41gr-Ka/view?usp=drivesdk"
               }
             ]
+          },
+          {
+            "type": "folder",
+            "name": "Trial Q's by Topic 2",
+            "children": []
           }
         ]
       }
