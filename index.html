@@ -3,42 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#050812">
-  <meta name="description" content="NSW HSC Mathematics Extension 1 and Extension 2 resources, mastery tracking and assessment tools.">
-  <title>HSC Maths Hub</title>
+  <meta name="theme-color" content="#070b12">
+  <meta name="description" content="NSW HSC Mathematics Extension resources in a simple searchable library.">
+  <title>HSC Maths Resources</title>
   <script src="dark-lock.js"></script>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="shortcut icon" href="/favicon.svg">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="mastery.css">
-  <link rel="stylesheet" href="glyph-fixes.css">
-  <link rel="stylesheet" href="performance.css">
-  <link rel="stylesheet" href="product-polish.css">
-  <link rel="stylesheet" href="account-ui.css">
-  <link rel="stylesheet" href="final-polish.css">
   <link rel="stylesheet" href="drive-browser.css">
+  <link rel="stylesheet" href="minimal-home.css">
 </head>
 <body>
-  <div class="page-noise" aria-hidden="true"></div><div class="grid-field" aria-hidden="true"></div>
   <main class="content-shell">
     <nav class="top-dock" aria-label="Main navigation">
-      <a class="brand" href="/" aria-label="HSC Maths Hub home"><span class="brand-mark"><img src="/favicon.svg" alt="" width="18" height="18"></span><span>HSC Maths</span></a>
-      <div class="dock-links"><a class="active" href="/">Resources</a><a href="/mastery/">Mastery</a><a href="/performance/">Performance</a></div>
-      <a id="nav-account-link" class="nav-account-link nav-account-cta" href="/login/"><span id="nav-account-text">Sign in</span></a>
+      <a class="brand" href="/" aria-label="HSC Maths Resources home">
+        <img src="/favicon.svg" alt="" width="18" height="18">
+        <span>HSC Maths</span>
+      </a>
+      <a id="nav-account-link" class="nav-account-link" href="/login/"><span id="nav-account-text">Sign in</span></a>
     </nav>
 
-    <section id="home-auth-prompt" class="home-auth-prompt" hidden>
-      <div class="home-auth-copy"><div class="home-auth-icon">A</div><div><strong>Save your progress across devices</strong><span>Sign in to keep your school, mastery and assessment data with your account.</span></div></div>
-      <div class="home-auth-actions"><a class="signin" href="/login/">Sign in</a><a class="signup" href="/login/?mode=signup">Create account</a></div>
-    </section>
-
-    <header class="hero-section">
-      <div class="hero-copy">
-        <div class="eyebrow">NSW HSC · EXTENSION MATHEMATICS</div>
-        <h1>HSC Mathematics <span>resources.</span></h1>
-        <p class="hero-lead">Papers, trials, textbooks, topic sets and notes in one clean library.</p>
-        <div class="hero-actions"><button class="primary-action" type="button" onclick="document.getElementById('resources').scrollIntoView({behavior:'smooth'})">Open library</button><a class="secondary-action" href="/mastery/">Mastery tracker</a></div>
-      </div>
+    <header class="page-header">
+      <h1>HSC Maths Resources</h1>
+      <p>Browse Extension 1, Extension 2 and RHHS resources like a normal folder.</p>
     </header>
 
     <section id="resources" class="drive-explorer" aria-label="Resource library">
@@ -52,14 +37,16 @@
         <div><h2 id="drive-title">Resources</h2><p id="drive-subtitle">Loading...</p></div>
         <a id="drive-open" class="drive-open" href="https://drive.google.com/drive/folders/14l4d3NYTNsP0nF46R5HM3jkvlmD5z7kc" target="_blank" rel="noopener noreferrer">Open in Drive</a>
       </div>
-      <div class="drive-root-note"><span><strong>Browse like a folder.</strong> Open folders here, use the breadcrumb or back button to move around.</span><span>Ctrl K to search</span></div>
       <div class="drive-columns"><span>Name</span><span>Type</span></div>
       <div id="drive-list" class="drive-list"><div class="drive-loading">Loading library...</div></div>
     </section>
   </main>
+
   <script src="resources.js"></script>
   <script src="external-resources.js"></script>
   <script src="drive-browser.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="auth-client.js"></script><script src="home-auth.js"></script><script src="cloud-hydrate.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth-client.js"></script>
+  <script src="home-auth.js"></script>
 </body>
 </html>
